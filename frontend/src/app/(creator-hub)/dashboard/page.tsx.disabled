@@ -1,0 +1,35 @@
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+import { EarningsSummary } from "@/components/creator/earnings-summary";
+import { AffiliateLinks } from "@/components/creator/affiliate-links";
+import { ConversionChart } from "@/components/creator/conversion-chart";
+import { PayoutHistory } from "@/components/creator/payout-history";
+import { requireRole } from "@/lib/auth/require-role";
+
+export const metadata = { title: "Creator Dashboard" };
+
+export default async function CreatorDashboardPage() {
+  const session = await auth();
+  if (!session.userId) redirect("/sign-in");
+  await requireRole(session.userId, ["creator", "admin"]);
+
+  return (
+    <div className="mx-auto max-w-6xl px-6 py-10 space-y-8">
+      <h1 className="text-3xl font-semibold">Creator Dashboard</h1>
+
+      {/* KPI row */}
+      <EarningsSummary userId={session.userId} />
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* Conversion performance chart */}
+        <ConversionChart userId={session.userId} />
+
+        {/* Affiliate link manager */}
+        <AffiliateLinks userId={session.userId} />
+      </div>
+
+      {/* Payout history table */}
+      <PayoutHistory userId={session.userId} />
+    </div>
+  );
+}

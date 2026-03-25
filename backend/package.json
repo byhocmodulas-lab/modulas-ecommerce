@@ -1,0 +1,10 @@
+{
+  "name": "@modulas/backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node apps/gateway/node_modules/@nestjs/cli/bin/nest.js start --watch",
+    "build": "node apps/gateway/node_modules/@nestjs/cli/bin/nest.js build",
+    "start": "node dist/apps/gateway/src/main"
+  }
+}

@@ -1,0 +1,68 @@
+import { Suspense } from "react";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth/session";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Vendor Dashboard — Modulas",
+  description: "Manage your brand, products, and orders on the Modulas platform.",
+};
+
+async function VendorStats({ vendorId }: { vendorId: string }) {
+  const res = await fetch(
+    `${process.env.API_URL}/api/v1/vendors/${vendorId}/analytics`,
+    { next: { revalidate: 300 } },
+  );
+  const data = await res.json();
+
+  return (
+    <div className="grid grid-cols-4 gap-6">
+      <StatCard label="Total Orders" value={data.totalOrders} />
+      <StatCard label="Revenue" value={`£${Number(data.totalRevenue).toLocaleString()}`} />
+      <StatCard label="Products Sold" value={data.productsSold} />
+      <StatCard label="Avg Order Value" value={`£${Number(data.avgOrderValue).toFixed(2)}`} />
+    </div>
+  );
+}
+
+function StatCard({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-xl border border-neutral-200 bg-white p-6">
+      <p className="text-sm text-neutral-500">{label}</p>
+      <p className="mt-1 text-2xl font-semibold tracking-tight">{value}</p>
+    </div>
+  );
+}
+
+export default async function VendorDashboardPage() {
+  const session = await auth();
+  if (!session?.vendorId) redirect("/");
+
+  return (
+    <div className="mx-auto max-w-screen-xl px-4 py-8">
+      <h1 className="mb-8 text-3xl font-bold tracking-tight">Vendor Dashboard</h1>
+
+      <Suspense fallback={<div className="h-32 animate-pulse rounded-xl bg-neutral-100" />}>
+        <VendorStats vendorId={session.vendorId} />
+      </Suspense>
+
+      <div className="mt-10 grid grid-cols-3 gap-6">
+        <DashboardLink href="/vendor-portal/products" title="Products" desc="Manage your catalog" />
+        <DashboardLink href="/vendor-portal/orders" title="Orders" desc="Track customer orders" />
+        <DashboardLink href="/vendor-portal/collections" title="Collections" desc="Curate brand collections" />
+      </div>
+    </div>
+  );
+}
+
+function DashboardLink({ href, title, desc }: { href: string; title: string; desc: string }) {
+  return (
+    <a
+      href={href}
+      className="group rounded-xl border border-neutral-200 bg-white p-6 transition hover:border-neutral-400 hover:shadow-sm"
+    >
+      <h3 className="text-lg font-semibold group-hover:underline">{title}</h3>
+      <p className="mt-1 text-sm text-neutral-500">{desc}</p>
+    </a>
+  );
+}

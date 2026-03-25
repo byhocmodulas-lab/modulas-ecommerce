@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:modulas.in)",
+      "WebFetch(domain:www.cb2.com)",
+      "Bash(npm install:*)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(dir \"c:\\\\Users\\\\Admin\\\\Modulas E-commerce\\\\frontend\\\\src\" /b)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "21st-dev-magic"
+  ]
+}

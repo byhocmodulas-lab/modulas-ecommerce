@@ -1,0 +1,113 @@
+version: "3.9"
+
+services:
+  # ── Databases ────────────────────────────────────────────────
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: modulas-postgres
+    environment:
+      POSTGRES_DB: modulas
+      POSTGRES_USER: modulas
+      POSTGRES_PASSWORD: modulas_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./../../database/postgres/schemas:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U modulas"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongodb:
+    image: mongo:7
+    container_name: modulas-mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: modulas
+      MONGO_INITDB_ROOT_PASSWORD: modulas_dev
+      MONGO_INITDB_DATABASE: modulas
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    container_name: modulas-redis
+    command: redis-server --requirepass modulas_dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
+    container_name: modulas-elastic
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data
+
+  # ── Backend Services ─────────────────────────────────────────
+
+  gateway:
+    build:
+      context: ../../backend
+      dockerfile: apps/gateway/Dockerfile.dev
+    container_name: modulas-gateway
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+      DATABASE_URL: postgresql://modulas:modulas_dev@postgres:5432/modulas
+      MONGODB_URI: mongodb://modulas:modulas_dev@mongodb:27017/modulas?authSource=admin
+      REDIS_URL: redis://:modulas_dev@redis:6379
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ../../backend:/app
+      - /app/node_modules
+    command: npm run dev --workspace=apps/gateway
+
+  # ── Tooling ──────────────────────────────────────────────────
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: modulas-redis-ui
+    environment:
+      REDIS_HOSTS: "local:redis:6379:0:modulas_dev"
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+
+  mongo-express:
+    image: mongo-express:1
+    container_name: modulas-mongo-ui
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: modulas
+      ME_CONFIG_MONGODB_ADMINPASSWORD: modulas_dev
+      ME_CONFIG_MONGODB_URL: mongodb://modulas:modulas_dev@mongodb:27017/
+      ME_CONFIG_BASICAUTH: "false"
+    ports:
+      - "8082:8081"
+    depends_on:
+      - mongodb
+
+volumes:
+  postgres_data:
+  mongo_data:
+  redis_data:
+  elastic_data:

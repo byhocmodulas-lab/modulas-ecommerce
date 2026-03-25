@@ -1,0 +1,249 @@
+import { Suspense } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dashboard — Admin",
+};
+
+function StatCard({
+  label,
+  value,
+  sub,
+  trend,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  trend?: { value: string; positive: boolean };
+}) {
+  return (
+    <div className="rounded-xl border border-charcoal-200 bg-white p-5">
+      <p className="text-xs font-medium uppercase tracking-wider text-charcoal-500">
+        {label}
+      </p>
+      <p className="mt-1.5 text-2xl font-semibold text-charcoal-900">{value}</p>
+      <div className="mt-1 flex items-center gap-2 text-xs text-charcoal-500">
+        {trend && (
+          <span
+            className={
+              trend.positive ? "text-emerald-600 font-medium" : "text-red-500 font-medium"
+            }
+          >
+            {trend.positive ? "↑" : "↓"} {trend.value}
+          </span>
+        )}
+        {sub && <span>{sub}</span>}
+      </div>
+    </div>
+  );
+}
+
+async function DashboardStats() {
+  const [ordersRes, usersRes, productsRes] = await Promise.allSettled([
+    fetch(`${process.env.API_URL}/api/v1/orders/admin?limit=1`, {
+      cache: "no-store",
+    }),
+    fetch(`${process.env.API_URL}/api/v1/auth/users`, {
+      cache: "no-store",
+    }),
+    fetch(`${process.env.API_URL}/api/v1/catalog/products?limit=1`, {
+      cache: "no-store",
+    }),
+  ]);
+
+  const orders =
+    ordersRes.status === "fulfilled" && ordersRes.value.ok
+      ? await ordersRes.value.json()
+      : null;
+
+  const users =
+    usersRes.status === "fulfilled" && usersRes.value.ok
+      ? await usersRes.value.json()
+      : null;
+
+  const products =
+    productsRes.status === "fulfilled" && productsRes.value.ok
+      ? await productsRes.value.json()
+      : null;
+
+  return (
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <StatCard
+        label="Total Orders"
+        value={String(orders?.meta?.total ?? "—")}
+        sub="all time"
+        trend={{ value: "12%", positive: true }}
+      />
+      <StatCard
+        label="Registered Users"
+        value={String(Array.isArray(users) ? users.length : users?.meta?.total ?? "—")}
+        sub="customers + pro"
+      />
+      <StatCard
+        label="Products"
+        value={String(products?.meta?.total ?? products?.total ?? "—")}
+        sub="live catalogue"
+      />
+      <StatCard
+        label="Revenue (MTD)"
+        value="£—"
+        sub="month to date"
+      />
+    </div>
+  );
+}
+
+async function RecentOrders() {
+  let orders: Array<{
+    id: string;
+    status: string;
+    totalAmount: number;
+    currency: string;
+    createdAt: string;
+  }> = [];
+
+  try {
+    const res = await fetch(
+      `${process.env.API_URL}/api/v1/orders/admin?limit=8&sort=createdAt:desc`,
+      { cache: "no-store" },
+    );
+    if (res.ok) {
+      const data = await res.json();
+      orders = data.data ?? [];
+    }
+  } catch {
+    // fail silently
+  }
+
+  const statusColor: Record<string, string> = {
+    pending:       "bg-amber-100 text-amber-800",
+    confirmed:     "bg-blue-100 text-blue-800",
+    in_production: "bg-purple-100 text-purple-800",
+    shipped:       "bg-indigo-100 text-indigo-800",
+    delivered:     "bg-emerald-100 text-emerald-800",
+    cancelled:     "bg-red-100 text-red-800",
+    refunded:      "bg-charcoal-100 text-charcoal-600",
+  };
+
+  return (
+    <div className="mt-8 rounded-xl border border-charcoal-200 bg-white">
+      <div className="flex items-center justify-between border-b border-charcoal-100 px-5 py-4">
+        <h2 className="font-medium text-charcoal-900">Recent Orders</h2>
+        <a href="/admin/orders" className="text-xs text-gold hover:underline">
+          View all →
+        </a>
+      </div>
+      {orders.length === 0 ? (
+        <p className="px-5 py-10 text-center text-sm text-charcoal-400">
+          No orders yet.
+        </p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-charcoal-100 text-xs text-charcoal-500">
+                <th className="px-5 py-3 text-left font-medium">Order ID</th>
+                <th className="px-5 py-3 text-left font-medium">Status</th>
+                <th className="px-5 py-3 text-right font-medium">Total</th>
+                <th className="px-5 py-3 text-right font-medium">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((order) => (
+                <tr
+                  key={order.id}
+                  className="border-b border-charcoal-50 hover:bg-charcoal-50 transition-colors"
+                >
+                  <td className="px-5 py-3 font-mono text-xs text-charcoal-700">
+                    <a
+                      href={`/admin/orders/${order.id}`}
+                      className="hover:text-gold hover:underline"
+                    >
+                      {order.id.slice(0, 8)}…
+                    </a>
+                  </td>
+                  <td className="px-5 py-3">
+                    <span
+                      className={`inline-block rounded-full px-2.5 py-0.5 text-2xs font-semibold capitalize ${
+                        statusColor[order.status] ?? "bg-charcoal-100 text-charcoal-600"
+                      }`}
+                    >
+                      {order.status.replace("_", " ")}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3 text-right font-medium">
+                    {new Intl.NumberFormat("en-GB", {
+                      style: "currency",
+                      currency: order.currency ?? "GBP",
+                    }).format(order.totalAmount)}
+                  </td>
+                  <td className="px-5 py-3 text-right text-charcoal-500">
+                    {new Date(order.createdAt).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const QUICK_LINKS = [
+  { href: "/admin/catalog",   label: "Add Product",          desc: "Add to the product catalogue" },
+  { href: "/admin/users",     label: "Manage Users",         desc: "View and manage all users" },
+  { href: "/admin/intel",     label: "Competitor Intel",     desc: "Market intelligence dashboard" },
+  { href: "/admin/ai-studio", label: "AI Content Studio",    desc: "Generate product copy & blog drafts" },
+  { href: "/admin/seo",       label: "SEO Dashboard",        desc: "Meta, rankings, FAQ blocks" },
+  { href: "/admin/social",    label: "Social Monitoring",    desc: "Brand mentions & sentiment" },
+];
+
+export default function AdminDashboardPage() {
+  return (
+    <div className="max-w-screen-xl">
+      <div className="mb-6">
+        <h1 className="text-xl font-semibold text-charcoal-900">Overview</h1>
+        <p className="mt-0.5 text-sm text-charcoal-500">
+          Welcome back. Here's what's happening at Modulas.
+        </p>
+      </div>
+
+      <Suspense
+        fallback={
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-24 animate-pulse rounded-xl bg-charcoal-100" />
+            ))}
+          </div>
+        }
+      >
+        <DashboardStats />
+      </Suspense>
+
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {QUICK_LINKS.map(({ href, label, desc }) => (
+          <a
+            key={href}
+            href={href}
+            className="rounded-xl border border-charcoal-200 bg-white p-4 transition hover:border-charcoal-300 hover:shadow-sm"
+          >
+            <p className="text-sm font-semibold text-charcoal-900">{label}</p>
+            <p className="mt-0.5 text-xs text-charcoal-500">{desc}</p>
+          </a>
+        ))}
+      </div>
+
+      <Suspense
+        fallback={
+          <div className="mt-8 h-64 animate-pulse rounded-xl bg-charcoal-100" />
+        }
+      >
+        <RecentOrders />
+      </Suspense>
+    </div>
+  );
+}

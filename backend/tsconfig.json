@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "strictBindCallApply": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@modulas/common": ["libs/common/src/index.ts"],
+      "@modulas/database": ["libs/database/src/index.ts"]
+    }
+    ,
+    "typeRoots": ["../node_modules/@types", "./node_modules/@types"],
+    "types": ["node"]
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "apps/affiliate",
+    "apps/configurator",
+    "apps/vendor",
+    "apps/workshop",
+    "apps/collab",
+    "apps/seo",
+    "apps/intel",
+    "apps/social",
+    "apps/ai"
+  ]
+}

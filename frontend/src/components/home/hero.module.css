@@ -1,0 +1,272 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   HERO LIGHTING SYSTEM
+   All gradient layers live here. Opacity is driven by CSS custom properties
+   that JavaScript updates every 10 s — no inline style={} in JSX.
+───────────────────────────────────────────────────────────────────────────── */
+
+/* Custom property defaults (shown during SSR before JS hydrates) */
+.hero {
+  --photo-op:   0.42;
+  --dawn:       0.20;
+  --midday:     0.20;
+  --afternoon:  0;
+  --dusk:       0;
+  --night:      0;
+  --ambient:    0;
+}
+
+/* ── Shared transition applied to every dynamic layer ── */
+.photo,
+.dawn,
+.dawnRays,
+.dawnBloom,
+.midday,
+.middayRays,
+.afternoon,
+.dusk,
+.duskRays,
+.duskBloom,
+.nightWash,
+.stars,
+.ambientFloor,
+.ambientTable,
+.ambientPendant,
+.ambientFill,
+.ambientWindow,
+.ambientNightBase {
+  transition: opacity 15s ease-in-out;
+}
+
+/* ── Background photograph ── */
+.photo {
+  mix-blend-mode: luminosity;
+  opacity: var(--photo-op);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   1 · DAWN  (golden sunrise from top-right / east)
+══════════════════════════════════════════════════════════════════════ */
+.dawn {
+  opacity: var(--dawn);
+  background: radial-gradient(
+    ellipse 62% 52% at 90% 3%,
+    rgba(255, 195, 80, 0.65) 0%,
+    rgba(255, 155, 40, 0.32) 38%,
+    rgba(255, 120, 20, 0.10) 62%,
+    transparent 78%
+  );
+}
+
+.dawnRays {
+  mix-blend-mode: screen;
+  opacity: calc(var(--dawn) * 0.85);
+  background: conic-gradient(
+    from 198deg at 90% 3%,
+    transparent  0deg,
+    rgba(255, 220, 120, 0.11)  4deg, transparent  8deg,
+    rgba(255, 205, 100, 0.08) 13deg, transparent 17deg,
+    rgba(255, 215, 115, 0.10) 22deg, transparent 27deg,
+    rgba(255, 200,  90, 0.07) 32deg, transparent 37deg,
+    rgba(255, 210, 110, 0.09) 43deg, transparent 48deg,
+    transparent 360deg
+  );
+}
+
+.dawnBloom {
+  opacity: calc(var(--dawn) * 0.50);
+  background: radial-gradient(
+    ellipse 40% 28% at 90% 3%,
+    rgba(255, 200, 90, 0.30) 0%,
+    transparent 60%
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   2 · MIDDAY  (cool blue-white from overhead)
+══════════════════════════════════════════════════════════════════════ */
+.midday {
+  opacity: var(--midday);
+  background: radial-gradient(
+    ellipse 100% 55% at 50% -8%,
+    rgba(215, 235, 255, 0.32) 0%,
+    rgba(195, 220, 255, 0.14) 48%,
+    transparent 75%
+  );
+}
+
+.middayRays {
+  mix-blend-mode: screen;
+  opacity: calc(var(--midday) * 0.40);
+  background: conic-gradient(
+    from 260deg at 50% -5%,
+    transparent  0deg,
+    rgba(220, 238, 255, 0.08)  7deg, transparent 14deg,
+    rgba(210, 232, 255, 0.06) 22deg, transparent 29deg,
+    rgba(225, 240, 255, 0.07) 36deg, transparent 43deg,
+    transparent 360deg
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   3 · AFTERNOON  (warm golden-white from right side)
+══════════════════════════════════════════════════════════════════════ */
+.afternoon {
+  opacity: var(--afternoon);
+  background: radial-gradient(
+    ellipse 55% 70% at 100% 30%,
+    rgba(255, 220, 140, 0.38) 0%,
+    rgba(255, 195, 100, 0.18) 42%,
+    transparent 68%
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   4 · DUSK  (deep amber setting sun from lower-left / west)
+══════════════════════════════════════════════════════════════════════ */
+.dusk {
+  opacity: var(--dusk);
+  background: radial-gradient(
+    ellipse 70% 62% at 5% 88%,
+    rgba(255, 110, 25, 0.68) 0%,
+    rgba(255,  72, 18, 0.36) 36%,
+    rgba(200,  28,  8, 0.12) 60%,
+    transparent 80%
+  );
+}
+
+.duskRays {
+  mix-blend-mode: screen;
+  opacity: calc(var(--dusk) * 0.80);
+  background: conic-gradient(
+    from 338deg at 5% 88%,
+    transparent  0deg,
+    rgba(255, 160, 55, 0.12)  5deg, transparent 10deg,
+    rgba(255, 140, 40, 0.09) 16deg, transparent 21deg,
+    rgba(255, 120, 30, 0.11) 27deg, transparent 32deg,
+    rgba(255, 150, 48, 0.08) 38deg, transparent 44deg,
+    transparent 360deg
+  );
+}
+
+.duskBloom {
+  opacity: calc(var(--dusk) * 0.55);
+  background: radial-gradient(
+    ellipse 48% 32% at 5% 88%,
+    rgba(255, 90, 15, 0.35) 0%,
+    transparent 58%
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   5 · NIGHT WASH  (deep indigo overlay)
+══════════════════════════════════════════════════════════════════════ */
+.nightWash {
+  opacity: var(--night);
+  background: linear-gradient(
+    162deg,
+    rgba( 6,  9, 48, 0.70)  0%,
+    rgba(18,  8, 55, 0.50) 45%,
+    rgba( 4,  6, 32, 0.35) 100%
+  );
+}
+
+.stars {
+  opacity: calc(var(--night) * 0.60);
+  background-image:
+    radial-gradient(1px 1px at 15% 12%, rgba(255, 255, 255, 0.60) 0%, transparent 100%),
+    radial-gradient(1px 1px at 32%  8%, rgba(255, 255, 255, 0.50) 0%, transparent 100%),
+    radial-gradient(1px 1px at 54%  6%, rgba(255, 255, 255, 0.40) 0%, transparent 100%),
+    radial-gradient(1px 1px at 71% 11%, rgba(255, 255, 255, 0.60) 0%, transparent 100%),
+    radial-gradient(1px 1px at 88%  7%, rgba(255, 255, 255, 0.50) 0%, transparent 100%),
+    radial-gradient(1px 1px at 22% 18%, rgba(255, 255, 255, 0.30) 0%, transparent 100%),
+    radial-gradient(1px 1px at 65% 15%, rgba(255, 255, 255, 0.40) 0%, transparent 100%),
+    radial-gradient(1px 1px at 45% 20%, rgba(255, 255, 255, 0.30) 0%, transparent 100%);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   6 · AMBIENT INTERIOR LIGHTS  (evening → night → pre-dawn)
+   Warm lamp glows so the scene never looks pitch-black after dark.
+══════════════════════════════════════════════════════════════════════ */
+
+/* Arc floor lamp — right side (visible in the hero photo) */
+.ambientFloor {
+  opacity: var(--ambient);
+  background: radial-gradient(
+    ellipse 28% 42% at 80% 42%,
+    rgba(255, 185, 75, 0.85) 0%,
+    rgba(255, 158, 50, 0.52) 30%,
+    rgba(255, 138, 35, 0.22) 55%,
+    transparent 75%
+  );
+}
+
+/* Table lamp — left of scene */
+.ambientTable {
+  opacity: calc(var(--ambient) * 0.85);
+  background: radial-gradient(
+    ellipse 22% 30% at 18% 62%,
+    rgba(255, 190, 85, 0.72) 0%,
+    rgba(255, 165, 55, 0.38) 38%,
+    rgba(255, 145, 40, 0.12) 60%,
+    transparent 76%
+  );
+}
+
+/* Pendant / ceiling light — centre-top of room */
+.ambientPendant {
+  opacity: calc(var(--ambient) * 0.70);
+  background: radial-gradient(
+    ellipse 38% 30% at 52% 22%,
+    rgba(255, 205, 100, 0.55) 0%,
+    rgba(255, 178, 68, 0.26) 42%,
+    transparent 68%
+  );
+}
+
+/* General warm fill — candlelight bath over the whole room */
+.ambientFill {
+  mix-blend-mode: multiply;
+  opacity: calc(var(--ambient) * 0.50);
+  background: linear-gradient(
+    180deg,
+    rgba(220, 130, 40, 0.10) 0%,
+    rgba(190, 105, 30, 0.32) 55%,
+    rgba(210, 120, 35, 0.40) 100%
+  );
+}
+
+/* Back-wall window glow */
+.ambientWindow {
+  opacity: calc(var(--ambient) * 0.60);
+  background: radial-gradient(
+    ellipse 34% 48% at 68% 52%,
+    rgba(255, 200, 110, 0.50) 0%,
+    rgba(255, 172, 65, 0.22) 48%,
+    transparent 70%
+  );
+}
+
+/* Warm base wash — ensures the scene is never fully dark at night */
+.ambientNightBase {
+  opacity: calc(var(--ambient) * 0.35);
+  background: radial-gradient(
+    ellipse 90% 70% at 50% 60%,
+    rgba(180, 100, 30, 0.30) 0%,
+    rgba(120, 65, 20, 0.18) 55%,
+    transparent 80%
+  );
+}
+
+/* ── Respect reduced-motion preference ── */
+@media (prefers-reduced-motion: reduce) {
+  .photo,
+  .dawn, .dawnRays, .dawnBloom,
+  .midday, .middayRays,
+  .afternoon,
+  .dusk, .duskRays, .duskBloom,
+  .nightWash, .stars,
+  .ambientFloor, .ambientTable, .ambientPendant, .ambientFill, .ambientWindow,
+  .ambientNightBase {
+    transition: none;
+  }
+}

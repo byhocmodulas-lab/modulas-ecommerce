@@ -1,0 +1,13 @@
+{
+  "common": {
+    "shopAll":        "Shop All",
+    "explore":        "Explore",
+    "readMore":       "Read More",
+    "bookVisit":      "Book Free Visit",
+    "configure":      "Configure",
+    "addToCart":      "Add to Cart",
+    "quickAdd":       "Quick Add",
+    "viewProduct":    "View Product",
+    "learnMore":      "Learn More"
+  }
+}
