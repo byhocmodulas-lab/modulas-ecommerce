@@ -5,6 +5,7 @@ import { GatewayModule } from "./gateway.module";
 import helmet from "helmet";
 import compression from "compression";
 import cookieParser from "cookie-parser";
+import express from "express";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -42,6 +43,12 @@ async function bootstrap() {
         : false,
       crossOriginEmbedderPolicy: false, // disabled — Stripe iframes require relaxed COEP
     }),
+  );
+
+  // Stripe webhook needs raw body BEFORE global JSON parsing
+  app.use(
+    "/api/v1/orders/webhook/stripe",
+    express.raw({ type: "application/json" }),
   );
 
   app.use(compression());

@@ -22,13 +22,14 @@ import { WorkshopsModule }     from './modules/workshops/workshops.module';
 import { AffiliateModule }     from './modules/affiliate/affiliate.module';
 import { CampaignsModule }    from './modules/campaigns/campaigns.module';
 import { MentionsModule }     from './modules/mentions/mentions.module';
+import { HealthModule }       from './modules/health/health.module';
 
 @Module({
   imports: [
-    // Config — loads .env from repo root
+    // Config — env vars injected by Railway in prod; falls back to .env.local locally
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['../../.env.local', '../../.env'],
+      envFilePath: ['.env.local', '.env'],
     }),
 
     // Rate limiting: 100 requests / 60 s per IP
@@ -70,6 +71,7 @@ import { MentionsModule }     from './modules/mentions/mentions.module';
     AffiliateModule,
     CampaignsModule,
     MentionsModule,
+    HealthModule,
   ],
   providers: [
     // Apply rate limiting globally
