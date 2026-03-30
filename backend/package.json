@@ -48,6 +48,7 @@
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.1",
     "safer-buffer": "^2.1.2",
+    "stripe": "^15.12.0",
     "typeorm": "^0.3.19",
     "typescript": "^5.3.3"
   }
