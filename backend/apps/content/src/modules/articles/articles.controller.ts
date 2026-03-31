@@ -14,7 +14,7 @@ import { Public }       from '../../../../../libs/common/src/decorators/public.d
 
 const CONTENT_ROLES = [Role.MasterAdmin, Role.Editor];
 
-@Controller('api/v1/cms/articles')
+@Controller('cms/articles')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
