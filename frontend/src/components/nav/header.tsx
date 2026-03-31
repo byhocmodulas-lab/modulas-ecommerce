@@ -84,9 +84,9 @@ export function Header() {
               const highlighted = active || (megaOpen && section && megaSection === section);
 
               return section ? (
-                <button
+                <Link
                   key={href}
-                  type="button"
+                  href={href}
                   onMouseEnter={() => openMega(section)}
                   onMouseLeave={closeMega}
                   onFocus={() => openMega(section)}
@@ -102,7 +102,7 @@ export function Header() {
                   )}
                 >
                   {label}
-                </button>
+                </Link>
               ) : (
                 <Link
                   key={href}

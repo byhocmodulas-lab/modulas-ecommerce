@@ -149,7 +149,7 @@ export function Footer() {
               { label: "Cookie Policy",   href: "/cookie-policy" },
               { label: "Terms of Sale",   href: "/terms-of-sale" },
               { label: "Accessibility",   href: "/accessibility" },
-              { label: "Warranty",        href: "/support/warranty" },
+              { label: "Warranty",        href: "/delivery" },
             ].map(({ label, href }) => (
               <Link
                 key={label}
