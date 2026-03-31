@@ -10,6 +10,8 @@ export default async function LoginPage({
   searchParams: Promise<{ next?: string; registered?: string; reset?: string }>;
 }) {
   const { next, registered, reset } = await searchParams;
+  const isDev = process.env.NODE_ENV !== "production";
+
   return (
     <>
       <div className="mb-8">
@@ -40,7 +42,7 @@ export default async function LoginPage({
         </a>
       </p>
 
-      <DevLoginPanel />
+      {isDev && <DevLoginPanel />}
     </>
   );
 }

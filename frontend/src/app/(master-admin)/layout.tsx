@@ -8,7 +8,7 @@ import {
   Megaphone, ShoppingBag, ChevronRight, ArrowLeft, Shield,
   PhoneCall, Share2, FileBarChart2, TrendingUp, Target,
   DollarSign, BookOpen, Receipt, PackageCheck,
-  Zap, Globe, Search, Sparkles,
+  Zap, Globe, Search, Sparkles, Palette, Eye,
 } from "lucide-react";
 import { useAccessToken } from "@/lib/stores/auth-store";
 import { authApi } from "@/lib/api/client";
@@ -36,6 +36,8 @@ const NAV_SECTIONS = [
       { href: "/master-admin/content/navigation", label: "Navigation",        icon: Globe },
       { href: "/master-admin/content/popups",     label: "Popups",            icon: Zap },
       { href: "/master-admin/content/seo",        label: "SEO Control",       icon: Search },
+      { href: "/master-admin/content/theme",      label: "Theme Editor",      icon: Palette },
+      { href: "/master-admin/content/visibility", label: "Visibility Manager", icon: Eye },
     ],
   },
   {

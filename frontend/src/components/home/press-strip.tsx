@@ -49,7 +49,7 @@ export function PressStrip({ quotes = DEFAULT_QUOTES }: { quotes?: PressQuote[] 
               </figcaption>
 
               {/* Quote — center */}
-              <blockquote className="font-serif text-2xl lg:text-3xl xl:text-[2rem] italic text-cream/72 leading-snug text-center order-1 lg:order-2">
+              <blockquote className="font-serif text-2xl lg:text-3xl xl:text-[2rem] italic text-white/90 leading-snug text-center order-1 lg:order-2">
                 &ldquo;{q.quote}&rdquo;
               </blockquote>
 
