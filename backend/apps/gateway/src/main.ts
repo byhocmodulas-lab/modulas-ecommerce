@@ -3,8 +3,8 @@ import { ValidationPipe, VersioningType } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { GatewayModule } from "./gateway.module";
 import helmet from "helmet";
-import compression from "compression";
-import cookieParser from "cookie-parser";
+import * as compression from "compression";
+import * as cookieParser from "cookie-parser";
 import * as express from "express";
 
 const isProd = process.env.NODE_ENV === "production";
