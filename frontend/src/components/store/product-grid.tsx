@@ -19,7 +19,7 @@ async function fetchProducts(filters: ProductFilters): Promise<{ products: Produ
 
   try {
     const res = await fetchWithTimeout(
-      `${process.env.API_URL ?? "http://localhost:4000"}/api/v1/products?${params}`,
+      `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1"}/products?${params}`,
       { next: { revalidate: 60 } },
     );
     if (!res.ok) throw new Error("Failed to fetch products");

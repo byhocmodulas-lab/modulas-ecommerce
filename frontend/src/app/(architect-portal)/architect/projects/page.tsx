@@ -20,7 +20,7 @@ export default async function ArchitectProjectsPage() {
         </div>
         <NewProjectButton />
       </div>
-      <ProjectsList userId={session.id} />
+      <ProjectsList userId={session!.id} />
     </div>
   );
 }

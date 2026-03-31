@@ -37,7 +37,7 @@ interface ProductWithDetails extends Product {
 async function fetchProduct(slug: string): Promise<ProductWithDetails | null> {
   try {
     const res = await fetchWithTimeout(
-      `${process.env.API_URL ?? "http://localhost:4000"}/api/v1/products/slug/${slug}`,
+      `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1"}/products/slug/${slug}`,
       { next: { revalidate: 60, tags: [`product-${slug}`] } },
     );
     if (res.status === 404) return null;
@@ -282,9 +282,10 @@ const DEMO_PRODUCTS: Product[] = [
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const product = await fetchProduct(params.slug);
+  const { slug } = await params;
+  const product = await fetchProduct(slug);
   if (!product) return { title: "Product Not Found" };
 
   const image = product.images.find((i) => i.is_primary)?.url;
@@ -304,9 +305,10 @@ export async function generateMetadata({
 export default async function ProductPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const product = await fetchProduct(params.slug);
+  const { slug } = await params;
+  const product = await fetchProduct(slug);
   if (!product) notFound();
 
   const primaryImage = product.images.find((i) => i.is_primary)?.url ?? product.images[0]?.url ?? "";
@@ -314,13 +316,13 @@ export default async function ProductPage({
 
   const productSchema = generateProductSchema({
     name:         product.name,
-    description:  product.description,
+    description:  product.description ?? "",
     image:        product.images.map((i) => i.url).filter(Boolean),
-    price:        product.base_price,
+    price:        product.price,
     currency:     "INR",
     sku:          (product as any).sku ?? product.id,
     brand:        (product as any).brand ?? "Modulas",
-    availability: product.stock_status === "in_stock" ? "InStock" : "OutOfStock",
+    availability: product.is_active !== false ? "InStock" : "OutOfStock",
     reviewCount:  (product as any).review_count,
     ratingValue:  (product as any).rating_avg,
     url:          productUrl,
@@ -329,7 +331,7 @@ export default async function ProductPage({
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: "Home",     url: "https://modulas.in/" },
     { name: "Products", url: "https://modulas.in/products" },
-    ...(product.category ? [{ name: product.category, url: `https://modulas.in/products?category=${encodeURIComponent(product.category)}` }] : []),
+    ...(product.category ? [{ name: product.category.name, url: `https://modulas.in/products?category=${encodeURIComponent(product.category.slug)}` }] : []),
     { name: product.name, url: productUrl },
   ]);
 
@@ -337,7 +339,7 @@ export default async function ProductPage({
     {
       question: `What materials is the ${product.name} available in?`,
       answer: product.material_options?.length
-        ? `The ${product.name} is available in ${product.material_options.map((m) => m.label).join(", ")}. Each material option can be selected in the configurator with live pricing updates.`
+        ? `The ${product.name} is available in ${product.material_options.map((m) => m.name).join(", ")}. Each material option can be selected in the configurator with live pricing updates.`
         : `The ${product.name} is crafted from premium materials. Contact our studio for full material specifications.`,
     },
     {

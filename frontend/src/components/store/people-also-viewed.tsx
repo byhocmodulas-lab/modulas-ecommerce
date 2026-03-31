@@ -14,7 +14,7 @@ async function fetchAlsoViewed(categorySlug?: string, excludeId?: string): Promi
     const params = new URLSearchParams({ limit: "8", sort: "popular" });
     if (categorySlug) params.set("category", categorySlug);
     const res = await fetchWithTimeout(
-      `${process.env.API_URL ?? "http://localhost:4000"}/api/v1/products?${params}`,
+      `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1"}/products?${params}`,
       { next: { revalidate: 300 } },
     );
     if (!res.ok) throw new Error();

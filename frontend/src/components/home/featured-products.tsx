@@ -7,7 +7,7 @@ import type { Product } from "@/lib/types/product";
 async function getFeaturedProducts(): Promise<Product[]> {
   try {
     const res = await fetchWithTimeout(
-      `${process.env.API_URL ?? "http://localhost:4000"}/api/v1/products?sort=popular&limit=8`,
+      `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1"}/products?sort=popular&limit=8`,
       { next: { revalidate: 300, tags: ["products"] } },
     );
     if (!res.ok) return FEATURED_PRODUCTS;

@@ -156,7 +156,7 @@ export default function MasterAdminLayout({ children }: { children: React.ReactN
                     <NavItem
                       key={item.href}
                       {...item}
-                      pendingCount={item.badge === "pending" ? pendingCount : undefined}
+                      pendingCount={'badge' in item && item.badge === "pending" ? pendingCount : undefined}
                     />
                   ))}
                 </nav>

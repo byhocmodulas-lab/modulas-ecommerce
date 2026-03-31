@@ -24,7 +24,7 @@ async function WorkshopGrid({ filters }: { filters: WorkshopFilters }) {
     if (filters.page) params.set("page", filters.page);
 
     const res = await fetchWithTimeout(
-      `${process.env.API_URL ?? "http://localhost:4000"}/api/v1/workshops?${params}`,
+      `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1"}/workshops?${params}`,
       { next: { revalidate: 60 } },
     );
     if (!res.ok) throw new Error("fetch failed");
@@ -113,11 +113,12 @@ function WorkshopCard({ workshop }: { workshop: Workshop }) {
   );
 }
 
-export default function WorkshopsPage({
+export default async function WorkshopsPage({
   searchParams,
 }: {
-  searchParams: WorkshopFilters;
+  searchParams: Promise<WorkshopFilters>;
 }) {
+  const resolvedParams = await searchParams;
   return (
     <div className="mx-auto max-w-screen-xl px-4 py-8">
       <div className="mb-8">
@@ -128,10 +129,10 @@ export default function WorkshopsPage({
       </div>
 
       <div className="mb-6 flex gap-3">
-        <FilterChip href="?type=workshop" label="Workshops" active={searchParams.type === "workshop"} />
-        <FilterChip href="?type=course" label="Courses" active={searchParams.type === "course"} />
-        <FilterChip href="?type=masterclass" label="Masterclasses" active={searchParams.type === "masterclass"} />
-        <FilterChip href="?type=internship" label="Internships" active={searchParams.type === "internship"} />
+        <FilterChip href="?type=workshop" label="Workshops" active={resolvedParams.type === "workshop"} />
+        <FilterChip href="?type=course" label="Courses" active={resolvedParams.type === "course"} />
+        <FilterChip href="?type=masterclass" label="Masterclasses" active={resolvedParams.type === "masterclass"} />
+        <FilterChip href="?type=internship" label="Internships" active={resolvedParams.type === "internship"} />
       </div>
 
       <Suspense
@@ -143,7 +144,7 @@ export default function WorkshopsPage({
           </div>
         }
       >
-        <WorkshopGrid filters={searchParams} />
+        <WorkshopGrid filters={resolvedParams} />
       </Suspense>
     </div>
   );

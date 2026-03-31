@@ -3,11 +3,12 @@ import { LoginForm } from "@/components/auth/login-form";
 
 export const metadata: Metadata = { title: "Architect Portal — Sign in" };
 
-export default function ArchitectLoginPage({
+export default async function ArchitectLoginPage({
   searchParams,
 }: {
-  searchParams: { next?: string };
+  searchParams: Promise<{ next?: string }>;
 }) {
+  const { next } = await searchParams;
   return (
     <>
       {/* Role badge */}
@@ -22,7 +23,7 @@ export default function ArchitectLoginPage({
         Sign in to access your projects, quotes, and client workspace.
       </p>
 
-      <LoginForm redirectTo={searchParams.next ?? "/architect"} theme="dark" />
+      <LoginForm redirectTo={next ?? "/architect"} theme="dark" />
 
       <p className="mt-10 font-sans text-[11px] text-cream/25 text-center leading-relaxed">
         Not yet a partner?{" "}

@@ -32,7 +32,7 @@ export default function BookConsultationPage() {
     try {
       await leadsApi.create({
         name: form.name,
-        email: form.email || undefined,
+        email: form.email || "",
         phone: form.phone,
         source: "website",
         notes: `City: ${form.city}. Interest: ${form.interest}. ${form.message}`.trim(),

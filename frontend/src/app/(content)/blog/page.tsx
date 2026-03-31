@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { generateCollectionSchema } from "@/lib/seo/structured-data";
 import { fetchWithTimeout } from "@/lib/utils/fetch-with-timeout";
 import type { Metadata } from "next";
 
@@ -40,7 +39,7 @@ async function ArticleGrid({ filters }: { filters: BlogFilters }) {
     if (filters.page) params.set("page", filters.page);
 
     const res = await fetchWithTimeout(
-      `${process.env.API_URL ?? "http://localhost:4000"}/api/v1/cms/articles/published?${params}`,
+      `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1"}/cms/articles/published?${params}`,
       { next: { revalidate: 60 } },
     );
     if (!res.ok) throw new Error("fetch failed");
@@ -158,11 +157,12 @@ function ArticleCard({ article }: { article: Article }) {
   );
 }
 
-export default function BlogPage({
+export default async function BlogPage({
   searchParams,
 }: {
-  searchParams: BlogFilters;
+  searchParams: Promise<BlogFilters>;
 }) {
+  const resolvedParams = await searchParams;
   return (
     <>
       <script
@@ -200,7 +200,7 @@ export default function BlogPage({
             </div>
           }
         >
-          <ArticleGrid filters={searchParams} />
+          <ArticleGrid filters={resolvedParams} />
         </Suspense>
       </div>
     </>

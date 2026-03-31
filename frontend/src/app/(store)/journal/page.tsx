@@ -85,7 +85,7 @@ const PLACEHOLDER_ARTICLES: Article[] = [
 async function fetchArticles(): Promise<Article[]> {
   try {
     const res = await fetchWithTimeout(
-      `${process.env.API_URL ?? "http://localhost:4000"}/api/v1/content/articles?limit=20`,
+      `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1"}/content/articles?limit=20`,
       { next: { revalidate: 60 } },
     );
     if (!res.ok) throw new Error("fetch failed");

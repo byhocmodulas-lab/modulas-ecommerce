@@ -52,11 +52,11 @@ const STORAGE_TYPES = [
 ];
 
 interface StoragePageProps {
-  searchParams: { type?: string };
+  searchParams: Promise<{ type?: string }>;
 }
 
-export default function StoragePage({ searchParams }: StoragePageProps) {
-  const activeType = searchParams.type;
+export default async function StoragePage({ searchParams }: StoragePageProps) {
+  const { type: activeType } = await searchParams;
   const filtered = activeType ? STORAGE_TYPES.filter((t) => t.slug === activeType) : STORAGE_TYPES;
 
   return (

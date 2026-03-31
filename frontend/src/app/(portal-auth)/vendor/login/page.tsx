@@ -3,11 +3,12 @@ import { LoginForm } from "@/components/auth/login-form";
 
 export const metadata: Metadata = { title: "Vendor Portal — Sign in" };
 
-export default function VendorLoginPage({
+export default async function VendorLoginPage({
   searchParams,
 }: {
-  searchParams: { next?: string };
+  searchParams: Promise<{ next?: string }>;
 }) {
+  const { next } = await searchParams;
   return (
     <>
       <p className="font-sans text-[10px] tracking-[0.35em] uppercase text-gold/60 mb-10">
@@ -21,7 +22,7 @@ export default function VendorLoginPage({
         Sign in to manage your products, orders, and brand presence.
       </p>
 
-      <LoginForm redirectTo={searchParams.next ?? "/vendor"} theme="dark" />
+      <LoginForm redirectTo={next ?? "/vendor"} theme="dark" />
 
       <p className="mt-10 font-sans text-[11px] text-cream/25 text-center leading-relaxed">
         Want to sell on Modulas?{" "}

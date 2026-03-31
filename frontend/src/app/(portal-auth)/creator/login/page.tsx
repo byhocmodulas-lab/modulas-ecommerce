@@ -3,11 +3,12 @@ import { LoginForm } from "@/components/auth/login-form";
 
 export const metadata: Metadata = { title: "Creator Hub — Sign in" };
 
-export default function CreatorLoginPage({
+export default async function CreatorLoginPage({
   searchParams,
 }: {
-  searchParams: { next?: string };
+  searchParams: Promise<{ next?: string }>;
 }) {
+  const { next } = await searchParams;
   return (
     <>
       <p className="font-sans text-[10px] tracking-[0.35em] uppercase text-gold/60 mb-10">
@@ -21,7 +22,7 @@ export default function CreatorLoginPage({
         Sign in to manage your affiliate links, campaigns, and earnings.
       </p>
 
-      <LoginForm redirectTo={searchParams.next ?? "/creator"} theme="dark" />
+      <LoginForm redirectTo={next ?? "/creator"} theme="dark" />
 
       <p className="mt-10 font-sans text-[11px] text-cream/25 text-center leading-relaxed">
         Interested in collaborating?{" "}

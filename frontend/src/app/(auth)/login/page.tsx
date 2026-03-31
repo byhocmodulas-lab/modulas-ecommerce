@@ -4,11 +4,12 @@ import { DevLoginPanel } from "@/components/auth/dev-login-panel";
 
 export const metadata: Metadata = { title: "Sign in" };
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { next?: string; registered?: string; reset?: string };
+  searchParams: Promise<{ next?: string; registered?: string; reset?: string }>;
 }) {
+  const { next, registered, reset } = await searchParams;
   return (
     <>
       <div className="mb-8">
@@ -18,19 +19,19 @@ export default function LoginPage({
         </p>
       </div>
 
-      {searchParams.registered && (
+      {registered && (
         <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
           Account created! Sign in to continue.
         </div>
       )}
 
-      {searchParams.reset && (
+      {reset && (
         <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
           Password reset successfully. Sign in with your new password.
         </div>
       )}
 
-      <LoginForm redirectTo={searchParams.next} />
+      <LoginForm redirectTo={next} />
 
       <p className="mt-8 text-center text-sm text-stone-500">
         Don&apos;t have an account?{" "}

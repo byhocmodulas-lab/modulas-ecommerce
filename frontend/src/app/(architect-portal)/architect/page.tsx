@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { FolderKanban, Users, FileText, BookOpen, Layers, Handshake } from "lucide-react";
+import { FolderKanban, Users, FileText, BookOpen, Layers, Handshake, ArrowRight } from "lucide-react";
 import { projectsApi, quotesApi } from "@/lib/api/client";
 import { useAuthStore } from "@/lib/stores/auth-store";
 

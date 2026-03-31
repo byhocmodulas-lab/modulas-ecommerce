@@ -172,11 +172,12 @@ const EDITORIAL = [
 
 /* ── Page ──────────────────────────────────────────────────────────── */
 interface SpacesPageProps {
-  searchParams: { room?: string };
+  searchParams: Promise<{ room?: string }>;
 }
 
-export default function SpacesPage({ searchParams }: SpacesPageProps) {
-  const activeRoom  = searchParams.room ?? "";
+export default async function SpacesPage({ searchParams }: SpacesPageProps) {
+  const { room } = await searchParams;
+  const activeRoom  = room ?? "";
   const visibleRooms = activeRoom
     ? ROOMS.filter((r) => r.slug === activeRoom)
     : ROOMS;

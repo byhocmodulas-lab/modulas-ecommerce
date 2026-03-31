@@ -3,11 +3,12 @@ import { LoginForm } from "@/components/auth/login-form";
 
 export const metadata: Metadata = { title: "Workshop — Sign in" };
 
-export default function WorkshopLoginPage({
+export default async function WorkshopLoginPage({
   searchParams,
 }: {
-  searchParams: { next?: string };
+  searchParams: Promise<{ next?: string }>;
 }) {
+  const { next } = await searchParams;
   return (
     <>
       <p className="font-sans text-[10px] tracking-[0.35em] uppercase text-gold/60 mb-10">
@@ -21,7 +22,7 @@ export default function WorkshopLoginPage({
         Sign in to access your courses, progress, and certificates.
       </p>
 
-      <LoginForm redirectTo={searchParams.next ?? "/intern"} theme="dark" />
+      <LoginForm redirectTo={next ?? "/intern"} theme="dark" />
 
       <p className="mt-10 font-sans text-[11px] text-cream/25 text-center leading-relaxed">
         Looking to join?{" "}

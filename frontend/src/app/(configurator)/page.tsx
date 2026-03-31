@@ -2,14 +2,15 @@ import { redirect } from "next/navigation";
 
 // Moved to /configurator to avoid route conflict with the home page (app/page.tsx).
 // All links to the configurator should use /configurator.
-export default function ConfiguratorRootRedirect({
+export default async function ConfiguratorRootRedirect({
   searchParams,
 }: {
-  searchParams: { productId?: string; configId?: string };
+  searchParams: Promise<{ productId?: string; configId?: string }>;
 }) {
+  const { productId, configId } = await searchParams;
   const params = new URLSearchParams();
-  if (searchParams.productId) params.set("productId", searchParams.productId);
-  if (searchParams.configId)  params.set("configId",  searchParams.configId);
+  if (productId) params.set("productId", productId);
+  if (configId)  params.set("configId",  configId);
   const qs = params.toString();
   redirect(`/configurator${qs ? `?${qs}` : ""}`);
 }

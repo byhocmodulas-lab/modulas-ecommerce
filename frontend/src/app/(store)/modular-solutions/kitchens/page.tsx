@@ -72,11 +72,11 @@ const INCLUSIONS = [
 ];
 
 interface KitchensPageProps {
-  searchParams: { layout?: string; style?: string };
+  searchParams: Promise<{ layout?: string; style?: string }>;
 }
 
-export default function KitchensPage({ searchParams }: KitchensPageProps) {
-  const activeLayout = searchParams.layout;
+export default async function KitchensPage({ searchParams }: KitchensPageProps) {
+  const { layout: activeLayout } = await searchParams;
 
   return (
     <>

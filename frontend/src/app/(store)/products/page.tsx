@@ -10,26 +10,29 @@ import { CATEGORY_MAP }          from "@/lib/config/categories";
 import type { Metadata }         from "next";
 import Link                      from "next/link";
 
+interface ProductsSearchParams {
+  category?:     string;
+  subcategory?:  string;
+  material?:     string;
+  brand?:        string;
+  finish?:       string;
+  min?:          string;
+  max?:          string;
+  sort?:         string;
+  q?:            string;
+  page?:         string;
+  configurable?: string;
+  instock?:      string;
+  sale?:         string;
+}
+
 interface ProductsPageProps {
-  searchParams: {
-    category?:     string;
-    subcategory?:  string;
-    material?:     string;
-    brand?:        string;
-    finish?:       string;
-    min?:          string;
-    max?:          string;
-    sort?:         string;
-    q?:            string;
-    page?:         string;
-    configurable?: string;
-    instock?:      string;
-    sale?:         string;
-  };
+  searchParams: Promise<ProductsSearchParams>;
 }
 
 export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
-  const cat = searchParams.category ? CATEGORY_MAP[searchParams.category] : null;
+  const params = await searchParams;
+  const cat = params.category ? CATEGORY_MAP[params.category] : null;
   return {
     title:       cat ? cat.seoTitle       : "Shop Furniture — Modulas",
     description: cat ? cat.seoDescription : "Explore the full Modulas collection — luxury bespoke furniture for living spaces, bedrooms, kitchens, and offices. Fully customised, crafted in India.",
@@ -61,13 +64,14 @@ function GridSkeleton() {
 
 /* ── Page ─────────────────────────────────────────────────────────── */
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+  const resolvedParams = await searchParams;
   const collectionSchema = generateCollectionSchema({
     name: "Modulas Collection",
     url:  "https://modulas.in/products",
   });
 
-  const activeCat   = searchParams.category;
-  const activeSub   = searchParams.subcategory;
+  const activeCat   = resolvedParams.category;
+  const activeSub   = resolvedParams.subcategory;
   const catConfig   = activeCat ? CATEGORY_MAP[activeCat] : null;
   const hero        = catConfig ?? DEFAULT_HERO;
 
@@ -83,7 +87,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         {/* Background image */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={hero.hero ?? (hero as typeof DEFAULT_HERO).image}
+          src={catConfig?.hero ?? DEFAULT_HERO.image}
           alt=""
           aria-hidden
           className="absolute inset-0 h-full w-full object-cover opacity-[0.38]"
@@ -139,9 +143,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       )}
 
       {/* ④ FILTER SIDEBAR + PRODUCT GRID ──────────────────────────── */}
-      <ProductsPageClient searchParams={searchParams}>
+      <ProductsPageClient searchParams={resolvedParams}>
         <Suspense fallback={<GridSkeleton />}>
-          <ProductGrid searchParams={searchParams} />
+          <ProductGrid searchParams={resolvedParams} />
         </Suspense>
       </ProductsPageClient>
 

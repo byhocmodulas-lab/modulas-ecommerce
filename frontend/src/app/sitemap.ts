@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 const BASE = "https://modulas.in";
-const API  = process.env.API_URL ?? "http://localhost:4000/api/v1";
+const API  = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
 
 /* ─────────────────────────────────────────────────────────────
  *  Static public routes — grouped by priority + change frequency

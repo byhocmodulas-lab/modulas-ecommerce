@@ -102,7 +102,7 @@ const FILTERS = ["All", "Workshops", "Masterclasses", "Courses", "Internships"] 
 async function fetchWorkshops(): Promise<Workshop[]> {
   try {
     const res = await fetchWithTimeout(
-      `${process.env.API_URL ?? "http://localhost:4000"}/api/v1/workshops?limit=20`,
+      `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1"}/workshops?limit=20`,
       { next: { revalidate: 60 } },
     );
     if (!res.ok) throw new Error("fetch failed");

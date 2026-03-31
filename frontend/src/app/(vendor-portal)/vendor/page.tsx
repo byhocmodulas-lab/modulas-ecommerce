@@ -21,7 +21,7 @@ const STATS = {
   reviewCount:   37,
 };
 
-const recentOrders = [
+const RECENT_ORDERS = [
   { id: "ORD-0821", product: "Oslo 3-Seat Sofa — Slate Boucle", qty: 1, value: 3200, status: "confirmed",  date: "2026-03-14" },
   { id: "ORD-0819", product: "Arc Lounge Chair × 2",            qty: 2, value: 3600, status: "produced",   date: "2026-03-13" },
   { id: "ORD-0815", product: "Kira Dining Table",               qty: 1, value: 4100, status: "shipped",    date: "2026-03-11" },
@@ -51,7 +51,7 @@ function formatPrice(n: number) {
 export default function VendorDashboardPage() {
   const { user, accessToken } = useAuthStore();
   const [stats, setStats] = useState(STATS);
-  const [recentOrders, setRecentOrders] = useState(recentOrders);
+  const [recentOrders, setRecentOrders] = useState(RECENT_ORDERS);
 
   useEffect(() => {
     if (!accessToken) return;

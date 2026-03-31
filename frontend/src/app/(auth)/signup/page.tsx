@@ -3,11 +3,12 @@ import { SignupForm } from "@/components/auth/signup-form";
 
 export const metadata: Metadata = { title: "Create account" };
 
-export default function SignupPage({
+export default async function SignupPage({
   searchParams,
 }: {
-  searchParams: { role?: string };
+  searchParams: Promise<{ role?: string }>;
 }) {
+  const { role } = await searchParams;
   return (
     <>
       <div className="mb-8">
@@ -19,7 +20,7 @@ export default function SignupPage({
         </p>
       </div>
 
-      <SignupForm defaultRole={searchParams.role} />
+      <SignupForm defaultRole={role} />
 
       <p className="mt-8 text-center text-sm text-stone-500">
         Already have an account?{" "}

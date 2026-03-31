@@ -14,7 +14,7 @@ async function fetchCollection(collectionTag: string, excludeId: string): Promis
   try {
     const params = new URLSearchParams({ limit: "8", tag: collectionTag });
     const res = await fetchWithTimeout(
-      `${process.env.API_URL ?? "http://localhost:4000"}/api/v1/products?${params}`,
+      `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1"}/products?${params}`,
       { next: { revalidate: 300 } },
     );
     if (!res.ok) throw new Error();

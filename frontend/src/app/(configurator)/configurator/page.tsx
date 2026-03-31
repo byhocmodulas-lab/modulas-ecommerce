@@ -9,14 +9,15 @@ export const metadata = {
 };
 
 interface ConfiguratorPageProps {
-  searchParams: { productId?: string; configId?: string };
+  searchParams: Promise<{ productId?: string; configId?: string }>;
 }
 
-export default function ConfiguratorPage({ searchParams }: ConfiguratorPageProps) {
+export default async function ConfiguratorPage({ searchParams }: ConfiguratorPageProps) {
+  const { productId, configId } = await searchParams;
   return (
     <ConfiguratorProvider
-      productId={searchParams.productId}
-      savedConfigId={searchParams.configId}
+      productId={productId}
+      savedConfigId={configId}
     >
       <div className="flex h-screen overflow-hidden">
         {/* Left: Module selection panel */}

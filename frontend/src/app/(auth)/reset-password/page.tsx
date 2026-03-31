@@ -3,11 +3,12 @@ import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 
 export const metadata: Metadata = { title: "Set new password" };
 
-export default function ResetPasswordPage({
+export default async function ResetPasswordPage({
   searchParams,
 }: {
-  searchParams: { token?: string };
+  searchParams: Promise<{ token?: string }>;
 }) {
+  const { token } = await searchParams;
   return (
     <>
       <div className="mb-8">
@@ -19,7 +20,7 @@ export default function ResetPasswordPage({
         </p>
       </div>
 
-      <ResetPasswordForm token={searchParams.token ?? ""} />
+      <ResetPasswordForm token={token ?? ""} />
 
       <p className="mt-8 text-center text-xs text-stone-400">
         Link expired?{" "}

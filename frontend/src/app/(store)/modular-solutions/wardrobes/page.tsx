@@ -65,11 +65,11 @@ const INTERIOR_MODULES = [
 ];
 
 interface WardrobesPageProps {
-  searchParams: { type?: string };
+  searchParams: Promise<{ type?: string }>;
 }
 
-export default function WardrobesPage({ searchParams }: WardrobesPageProps) {
-  const activeType = searchParams.type;
+export default async function WardrobesPage({ searchParams }: WardrobesPageProps) {
+  const { type: activeType } = await searchParams;
   const filtered = activeType ? TYPES.filter((t) => t.slug === activeType) : TYPES;
 
   return (
