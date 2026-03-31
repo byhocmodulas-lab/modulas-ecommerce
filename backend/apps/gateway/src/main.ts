@@ -5,7 +5,7 @@ import { GatewayModule } from "./gateway.module";
 import helmet from "helmet";
 import compression from "compression";
 import cookieParser from "cookie-parser";
-import express from "express";
+import * as express from "express";
 
 const isProd = process.env.NODE_ENV === "production";
 
