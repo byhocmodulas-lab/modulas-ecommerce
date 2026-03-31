@@ -5,7 +5,7 @@
   "outputDirectory": "frontend/.next",
   "git": {
     "deploymentEnabled": {
-      "main": true
+      "master": true
     }
   }
 }

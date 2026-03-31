@@ -27,17 +27,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // Turbopack config (default in Next.js 16)
-  // root is set to the npm workspace root (one level up from frontend/).
-  // This allows Turbopack to find workspace-hoisted packages in the root
-  // node_modules/, while preventing it from crawling up to C:\Users\Admin\
-  // where a stray package-lock.json would cause chunk URLs to embed
-  // "Modulas E-commerce" (with a space → %20) and break loading.
-  // GLB/GLTF/HDR/EXR files are handled as static assets via Next.js public/ dir
-  // or via next/image — no loader override needed for Turbopack
-  turbopack: {
-    root: path.resolve(__dirname, ".."),
-  },
 };
 
 export default nextConfig;
