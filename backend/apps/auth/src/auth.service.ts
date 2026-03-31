@@ -284,6 +284,38 @@ export class AuthService {
     return (await this.userRepo.findOne({ where: { id: targetId } }))!;
   }
 
+  // ─── Bootstrap ─────────────────────────────────────────────────
+
+  async bootstrapMasterAdmin(dto: { setupToken: string; email: string; password: string; fullName?: string }) {
+    const expectedToken = this.config.get<string>('ADMIN_SETUP_TOKEN');
+    if (!expectedToken || dto.setupToken !== expectedToken) {
+      throw new UnauthorizedException('Invalid setup token');
+    }
+
+    const existing = await this.userRepo.findOne({ where: { role: Role.MasterAdmin } });
+    if (existing) {
+      throw new ConflictException('Master admin already exists. Bootstrap is disabled.');
+    }
+
+    this.validatePasswordStrength(dto.password);
+    const passwordHash = await bcrypt.hash(dto.password, 12);
+
+    const user = this.userRepo.create({
+      email: dto.email.toLowerCase(),
+      fullName: dto.fullName ?? 'Master Admin',
+      clerkId: `local_${crypto.randomUUID()}`,
+      role: Role.MasterAdmin,
+      isVerified: true,
+      metadata: {
+        passwordHash,
+        registeredAt: new Date().toISOString(),
+      },
+    });
+
+    const saved = await this.userRepo.save(user);
+    return { message: 'Master admin created successfully.', ...(await this.issueTokenPair(saved)) };
+  }
+
   async deleteUser(targetId: string): Promise<void> {
     const user = await this.userRepo.findOne({ where: { id: targetId } });
     if (!user) throw new NotFoundException('User not found');

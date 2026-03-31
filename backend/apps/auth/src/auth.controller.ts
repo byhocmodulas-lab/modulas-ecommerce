@@ -176,6 +176,18 @@ export class AuthController {
     return this.authService.deleteUser(id);
   }
 
+  // ─── Bootstrap: create first master admin ─────────────────────
+
+  @Public()
+  @Post('bootstrap')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'One-time setup: create first master admin (disabled after first use)' })
+  async bootstrap(
+    @Body() body: { setupToken: string; email: string; password: string; fullName?: string },
+  ) {
+    return this.authService.bootstrapMasterAdmin(body);
+  }
+
   // ─── Helper ────────────────────────────────────────────────────
 
   private setRefreshCookie(res: Response, token: string) {
