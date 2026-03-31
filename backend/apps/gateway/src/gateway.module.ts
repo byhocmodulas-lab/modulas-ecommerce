@@ -35,16 +35,22 @@ import { HealthModule }       from './modules/health/health.module';
     // Rate limiting: 100 requests / 60 s per IP
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
 
-    // Redis / BullMQ — shared connection for all queues
+    // Redis / BullMQ — reads REDIS_URL (Railway) or falls back to individual vars
     BullModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        connection: {
-          host: config.get<string>('REDIS_HOST', 'localhost'),
-          port: config.get<number>('REDIS_PORT', 6379),
-          password: config.get<string>('REDIS_PASSWORD'),
-        },
-      }),
+      useFactory: (config: ConfigService) => {
+        const redisUrl = config.get<string>('REDIS_URL');
+        if (redisUrl) {
+          return { connection: { url: redisUrl } };
+        }
+        return {
+          connection: {
+            host: config.get<string>('REDIS_HOST', 'localhost'),
+            port: config.get<number>('REDIS_PORT', 6379),
+            password: config.get<string>('REDIS_PASSWORD'),
+          },
+        };
+      },
     }),
 
     // Shared DB connection
