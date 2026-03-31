@@ -56,8 +56,8 @@ export class ProductsService {
       .createQueryBuilder('p')
       .leftJoinAndSelect('p.category', 'cat')
       .leftJoinAndSelect('p.images', 'img')
-      .where('p.is_active = true')
-      .andWhere('p.deleted_at IS NULL');
+      .where('p.isActive = true')
+      .andWhere('p.deletedAt IS NULL');
 
     // Full-text search on name + description
     if (dto.q) {
@@ -91,49 +91,48 @@ export class ProductsService {
 
     // Finish filter — stored in finish_options array
     if (dto.finish) {
-      qb.andWhere(':finish = ANY(p.finish_options)', { finish: dto.finish });
+      qb.andWhere(':finish = ANY(p.finishOptions)', { finish: dto.finish });
     }
 
     // Price range
     if (dto.min !== undefined) {
-      qb.andWhere('p.base_price >= :min', { min: dto.min });
+      qb.andWhere('p.price >= :min', { min: dto.min });
     }
     if (dto.max !== undefined) {
-      qb.andWhere('p.base_price <= :max', { max: dto.max });
+      qb.andWhere('p.price <= :max', { max: dto.max });
     }
 
     // Configurable (3D) only
     if (dto.configurable) {
-      qb.andWhere('p.is_configurable = true');
+      qb.andWhere('p.isConfigurable = true');
     }
 
     // In-stock only
     if (dto.instock) {
-      qb.andWhere('p.stock_qty > 0');
+      qb.andWhere('p.stockQty > 0');
     }
 
     // On-sale only (compare_at_price > base_price)
     if (dto.sale) {
-      qb.andWhere('p.compare_at_price > p.base_price');
+      qb.andWhere('p.compareAtPrice > p.price');
     }
 
-    // Sort
+    // Sort — use entity property names (camelCase), not DB column names
     switch (dto.sort) {
       case ProductSortOption.PriceAsc:
-        qb.orderBy('p.base_price', 'ASC');
+        qb.orderBy('p.price', 'ASC');
         break;
       case ProductSortOption.PriceDesc:
-        qb.orderBy('p.base_price', 'DESC');
+        qb.orderBy('p.price', 'DESC');
         break;
       case ProductSortOption.Newest:
-        qb.orderBy('p.created_at', 'DESC');
+        qb.orderBy('p.createdAt', 'DESC');
         break;
       case ProductSortOption.Popular:
-        // Approximated by review_count metadata or fallback to createdAt
-        qb.orderBy('p.created_at', 'DESC');
+        qb.orderBy('p.createdAt', 'DESC');
         break;
       default:
-        qb.orderBy('p.is_featured', 'DESC').addOrderBy('p.created_at', 'DESC');
+        qb.orderBy('p.isFeatured', 'DESC').addOrderBy('p.createdAt', 'DESC');
     }
 
     const [products, total] = await qb
