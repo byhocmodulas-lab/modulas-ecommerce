@@ -35,7 +35,7 @@ export class Campaign {
   @Column('text', { nullable: true })
   deadline: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   fee: string | null;
 
   @Column('jsonb', { default: [] })

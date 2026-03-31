@@ -46,7 +46,7 @@ export class Mention {
   @Column({ default: false })
   responded: boolean;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   url: string | null;
 
   @Column({ default: false })
