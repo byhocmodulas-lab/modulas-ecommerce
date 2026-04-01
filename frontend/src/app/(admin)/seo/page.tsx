@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAuthStore } from "@/store/auth";
+import { useAuthStore } from "@/lib/stores/auth-store";
 import {
   Search, TrendingUp, TrendingDown, ExternalLink,
   AlertCircle, CheckCircle2, Clock, RefreshCw,
