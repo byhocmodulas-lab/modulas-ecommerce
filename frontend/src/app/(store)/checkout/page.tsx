@@ -11,8 +11,9 @@ import {
 } from "@stripe/react-stripe-js";
 import {
   ArrowLeft, Lock, Truck, CheckCircle2, ChevronDown, ChevronUp,
-  FileText, Building2, Globe, MessageSquare,
+  FileText, Building2, Globe, MessageSquare, CreditCard, Smartphone,
 } from "lucide-react";
+import { RazorpayButton } from "@/components/checkout/razorpay-button";
 import { formatPrice } from "@/lib/utils/format";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import { useRouter } from "next/navigation";
@@ -117,6 +118,7 @@ export default function CheckoutPage() {
   const [orderId, setOrderId]             = useState<string | null>(null);
   const [clientSecret, setClientSecret]   = useState<string | null>(null);
   const [showRequirements, setShowRequirements] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "stripe">("razorpay");
 
   // ── Form state ─────────────────────────────────────────────
   const [form, setForm] = useState({
@@ -260,18 +262,21 @@ export default function CheckoutPage() {
 
       const { order } = await orderRes.json();
 
-      // 3. Get Stripe PaymentIntent clientSecret
-      const piRes = await fetch(`${API}/orders/${order.id}/payment-intent`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${accessToken}` },
-        credentials: "include",
-      });
-
-      if (!piRes.ok) throw new Error("Failed to initiate payment");
-      const { clientSecret: secret } = await piRes.json();
-
       setOrderId(order.id);
-      setClientSecret(secret);
+
+      // Only fetch Stripe clientSecret if Stripe is the selected method
+      if (paymentMethod === "stripe") {
+        const piRes = await fetch(`${API}/orders/${order.id}/payment-intent`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${accessToken}` },
+          credentials: "include",
+        });
+
+        if (!piRes.ok) throw new Error("Failed to initiate payment");
+        const { clientSecret: secret } = await piRes.json();
+        setClientSecret(secret);
+      }
+
       setStep("payment");
     } catch (err) {
       alert(err instanceof Error ? err.message : "Something went wrong");
@@ -556,7 +561,7 @@ export default function CheckoutPage() {
             </div>
           )}
 
-          {step === "payment" && clientSecret && (
+          {step === "payment" && orderId && (
             <section>
               <div className="mb-6 flex items-center justify-between">
                 <h2 className="font-serif text-2xl text-charcoal dark:text-cream">Payment</h2>
@@ -580,30 +585,122 @@ export default function CheckoutPage() {
                 <p className="font-sans text-xs text-charcoal/50 dark:text-cream/50">{form.email} · {form.phone}</p>
               </div>
 
-              <div className="rounded-xl border border-black/8 dark:border-white/8 p-6">
-                <Elements
-                  stripe={stripePromise}
-                  options={{
-                    clientSecret,
-                    appearance: {
-                      theme: "stripe",
-                      variables: {
-                        colorPrimary: "#c9a96e",
-                        colorBackground: "#ffffff",
-                        colorText: "#1a1a1a",
-                        borderRadius: "12px",
-                        fontFamily: "Inter, sans-serif",
-                      },
-                    },
-                  }}
+              {/* Payment method selector */}
+              <div className="mb-5 grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("razorpay")}
+                  className={[
+                    "flex items-center gap-2.5 rounded-xl border p-4 text-left transition-all",
+                    paymentMethod === "razorpay"
+                      ? "border-gold bg-gold/5 ring-1 ring-gold/30"
+                      : "border-black/8 dark:border-white/8 hover:border-gold/30",
+                  ].join(" ")}
                 >
-                  <StripePaymentForm
-                    orderId={orderId!}
-                    total={subtotal}
-                    onSuccess={(oid) => { setOrderId(oid); setStep("confirmed"); }}
-                  />
-                </Elements>
+                  <Smartphone className="h-4 w-4 shrink-0 text-[#2d6a4f]" />
+                  <div>
+                    <p className="font-sans text-xs font-medium text-charcoal dark:text-cream">UPI / NetBanking</p>
+                    <p className="font-sans text-[10px] text-charcoal/40 dark:text-cream/40">Razorpay · India</p>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("stripe")}
+                  className={[
+                    "flex items-center gap-2.5 rounded-xl border p-4 text-left transition-all",
+                    paymentMethod === "stripe"
+                      ? "border-gold bg-gold/5 ring-1 ring-gold/30"
+                      : "border-black/8 dark:border-white/8 hover:border-gold/30",
+                  ].join(" ")}
+                >
+                  <CreditCard className="h-4 w-4 shrink-0 text-[#635bff]" />
+                  <div>
+                    <p className="font-sans text-xs font-medium text-charcoal dark:text-cream">Credit / Debit Card</p>
+                    <p className="font-sans text-[10px] text-charcoal/40 dark:text-cream/40">Stripe · International</p>
+                  </div>
+                </button>
               </div>
+
+              {/* Razorpay */}
+              {paymentMethod === "razorpay" && (
+                <div className="rounded-xl border border-black/8 dark:border-white/8 p-6 space-y-3">
+                  <p className="font-sans text-xs text-charcoal/50 dark:text-cream/50">
+                    Pay securely via UPI, Net Banking, Wallets, or Debit/Credit card powered by Razorpay.
+                  </p>
+                  <RazorpayButton
+                    orderId={orderId}
+                    total={subtotal}
+                    accessToken={accessToken!}
+                    customerName={form.fullName}
+                    customerEmail={form.email}
+                    customerPhone={form.phone}
+                    onSuccess={(oid) => { setOrderId(oid); setStep("confirmed"); }}
+                    onError={(msg) => alert(msg)}
+                  />
+                </div>
+              )}
+
+              {/* Stripe */}
+              {paymentMethod === "stripe" && (
+                clientSecret ? (
+                  <div className="rounded-xl border border-black/8 dark:border-white/8 p-6">
+                    <Elements
+                      stripe={stripePromise}
+                      options={{
+                        clientSecret,
+                        appearance: {
+                          theme: "stripe",
+                          variables: {
+                            colorPrimary: "#c9a96e",
+                            colorBackground: "#ffffff",
+                            colorText: "#1a1a1a",
+                            borderRadius: "12px",
+                            fontFamily: "Inter, sans-serif",
+                          },
+                        },
+                      }}
+                    >
+                      <StripePaymentForm
+                        orderId={orderId!}
+                        total={subtotal}
+                        onSuccess={(oid) => { setOrderId(oid); setStep("confirmed"); }}
+                      />
+                    </Elements>
+                  </div>
+                ) : (
+                  /* clientSecret not yet fetched — user switched from Razorpay to Stripe */
+                  <div className="rounded-xl border border-black/8 dark:border-white/8 p-6 flex flex-col items-center gap-3 py-10">
+                    <p className="font-sans text-sm text-charcoal/50 dark:text-cream/50 text-center">
+                      Loading card payment…
+                    </p>
+                    <button
+                      type="button"
+                      disabled={placingOrder}
+                      onClick={async () => {
+                        if (!accessToken || !orderId) return;
+                        setPlacingOrder(true);
+                        try {
+                          const piRes = await fetch(`${API}/orders/${orderId}/payment-intent`, {
+                            method: "POST",
+                            headers: { Authorization: `Bearer ${accessToken}` },
+                            credentials: "include",
+                          });
+                          if (!piRes.ok) throw new Error("Failed to initiate payment");
+                          const { clientSecret: secret } = await piRes.json();
+                          setClientSecret(secret);
+                        } catch (err) {
+                          alert(err instanceof Error ? err.message : "Could not load card payment");
+                        } finally {
+                          setPlacingOrder(false);
+                        }
+                      }}
+                      className="inline-flex items-center gap-2 rounded-full bg-gold px-6 py-2.5 font-sans text-[11px] tracking-[0.12em] uppercase text-charcoal-950 hover:bg-gold-400 disabled:opacity-50 transition-colors"
+                    >
+                      {placingOrder ? "Loading…" : "Load card payment"}
+                    </button>
+                  </div>
+                )
+              )}
             </section>
           )}
         </div>

@@ -1,9 +1,81 @@
 "use client";
 
 import { useState } from "react";
-import { User, Mail, Lock, Bell, Trash2, Save, Eye, EyeOff, CheckCircle2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { User, Mail, Lock, Bell, Trash2, Save, Eye, EyeOff, CheckCircle2, Loader2 } from "lucide-react";
 import { useAuthStore } from "@/lib/stores/auth-store";
-import { authApi } from "@/lib/api/client";
+
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
+
+function DeleteAccountButton() {
+  const { accessToken, clearAuth } = useAuthStore();
+  const router = useRouter();
+  const [confirm, setConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState("");
+
+  async function handleDelete() {
+    if (!accessToken) return;
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch(`${API}/auth/account`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${accessToken}` },
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message ?? "Deletion failed. Please contact support.");
+      }
+      clearAuth();
+      router.replace("/?deleted=1");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong.");
+      setLoading(false);
+    }
+  }
+
+  if (!confirm) {
+    return (
+      <button
+        type="button"
+        onClick={() => setConfirm(true)}
+        className="mt-4 inline-flex items-center gap-2 rounded-full border border-red-300 dark:border-red-700 px-5 py-2 font-sans text-[11px] tracking-[0.1em] uppercase text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+      >
+        <Trash2 className="h-3.5 w-3.5" />
+        Delete my account
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-4 space-y-3">
+      <p className="font-sans text-xs font-medium text-red-700 dark:text-red-400">
+        This cannot be undone. All your data, orders, and saved items will be permanently deleted.
+      </p>
+      {error && <p className="font-sans text-xs text-red-500">{error}</p>}
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={handleDelete}
+          disabled={loading}
+          className="inline-flex items-center gap-2 rounded-full bg-red-600 px-5 py-2 font-sans text-[11px] tracking-[0.1em] uppercase text-white hover:bg-red-700 disabled:opacity-60 transition-colors"
+        >
+          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+          {loading ? "Deleting…" : "Yes, delete permanently"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setConfirm(false)}
+          className="rounded-full border border-black/15 dark:border-white/15 px-5 py-2 font-sans text-[11px] tracking-[0.1em] uppercase text-charcoal/50 dark:text-cream/50 hover:border-charcoal dark:hover:border-cream transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function SectionCard({ title, icon: Icon, children }: {
   title: string;
@@ -334,17 +406,7 @@ export default function AccountSettingsPage() {
               Permanently delete your Modulas account and all associated data. This action cannot be undone.
               Any active orders must be completed or cancelled first.
             </p>
-            <button
-              onClick={() => {
-                if (window.confirm("Are you sure? This will permanently delete your account and cannot be undone.")) {
-                  // TODO: implement account deletion API call
-                }
-              }}
-              className="mt-4 inline-flex items-center gap-2 rounded-full border border-red-300 dark:border-red-700 px-5 py-2 font-sans text-[11px] tracking-[0.1em] uppercase text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-              Delete my account
-            </button>
+            <DeleteAccountButton />
           </div>
         </div>
       </div>

@@ -26,14 +26,22 @@ export function Newsletter({ newsletter = DEFAULT_NEWSLETTER }: { newsletter?: C
     if (!email) return;
     setStatus("loading");
     try {
-      // TODO: wire to /api/newsletter
-      await new Promise((r) => setTimeout(r, 800));
+      const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
+      const res = await fetch(`${API}/newsletter/subscribe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message ?? "Subscription failed");
+      }
       setStatus("success");
       setMessage("You're on the list. Expect something beautiful soon.");
       setEmail("");
-    } catch {
+    } catch (err) {
       setStatus("error");
-      setMessage("Something went wrong. Please try again.");
+      setMessage(err instanceof Error ? err.message : "Something went wrong. Please try again.");
     }
   }
 
