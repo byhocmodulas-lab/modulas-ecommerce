@@ -23,6 +23,7 @@ import { AffiliateModule }     from './modules/affiliate/affiliate.module';
 import { CampaignsModule }    from './modules/campaigns/campaigns.module';
 import { MentionsModule }     from './modules/mentions/mentions.module';
 import { HealthModule }       from './modules/health/health.module';
+import { AppController }      from './app.controller';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { HealthModule }       from './modules/health/health.module';
     MentionsModule,
     HealthModule,
   ],
+  controllers: [AppController],
   providers: [
     // Apply rate limiting globally
     { provide: APP_GUARD, useClass: ThrottlerGuard },
