@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuthStore } from "@/store/auth";
 import {
   Search, TrendingUp, TrendingDown, ExternalLink,
   AlertCircle, CheckCircle2, Clock, RefreshCw,
@@ -68,13 +69,13 @@ const PAGES: PageSeo[] = [
     lastCrawled: "2026-03-14T06:00:00Z",
   },
   {
-    path: "/journal",
-    title: "Journal — Design Stories & Inspiration | Modulas",
+    path: "/blog",
+    title: "Blog — Design Stories & Inspiration | Modulas",
     metaDesc: "Read our latest design stories, material guides and home inspiration from the Modulas studio.",
-    h1: "Journal",
+    h1: "Blog",
     score: 62,
     indexable: true,
-    issues: ["H1 too short", "No internal links from journal to product pages", "Missing Open Graph image"],
+    issues: ["H1 too short", "No internal links from blog to product pages", "Missing Open Graph image"],
     lastCrawled: "2026-03-13T06:00:00Z",
   },
   {
@@ -109,7 +110,7 @@ const KEYWORDS: KeywordRank[] = [
   { keyword: "bespoke furniture London",   position: 9,  prevPosition: 8,  url: "/",                            volume: 9800  },
   { keyword: "luxury dining table oak",    position: 14, prevPosition: 18, url: "/products",                    volume: 5600  },
   { keyword: "furniture configurator UK",  position: 6,  prevPosition: 5,  url: "/configurator",                volume: 3200  },
-  { keyword: "sustainable furniture UK",   position: 22, prevPosition: 28, url: "/journal",                     volume: 28000 },
+  { keyword: "sustainable furniture UK",   position: 22, prevPosition: 28, url: "/blog",                     volume: 28000 },
   { keyword: "made to order sofa",         position: 11, prevPosition: 11, url: "/products/modular-sofa-oslo",  volume: 7400  },
   { keyword: "architect trade furniture",  position: 3,  prevPosition: 4,  url: "/architect-portal",            volume: 1800  },
   { keyword: "bespoke lounge chair",       position: 31, prevPosition: 25, url: "/products",                    volume: 4200  },
@@ -117,13 +118,14 @@ const KEYWORDS: KeywordRank[] = [
 
 const BACKLINKS: Backlink[] = [
   { source: "designmilk.com",     target: "/",             da: 72, type: "dofollow", found: "2026-02-10" },
-  { source: "dezeen.com",         target: "/journal",      da: 88, type: "dofollow", found: "2026-01-22" },
+  { source: "dezeen.com",         target: "/blog",      da: 88, type: "dofollow", found: "2026-01-22" },
   { source: "architectsjournal.co.uk", target: "/architect-portal", da: 65, type: "dofollow", found: "2026-03-01" },
   { source: "houzz.co.uk",        target: "/products",     da: 77, type: "nofollow", found: "2026-02-28" },
   { source: "livingetc.com",      target: "/",             da: 60, type: "dofollow", found: "2026-03-10" },
   { source: "reddit.com/r/interiordesign", target: "/configurator", da: 91, type: "nofollow", found: "2026-03-12" },
 ];
 
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
 const TABS = ["Pages", "Keywords", "Backlinks"] as const;
 type Tab = typeof TABS[number];
 
@@ -154,15 +156,31 @@ function RankDelta({ pos, prev }: { pos: number; prev: number }) {
 
 // ── Main page ─────────────────────────────────────────────────
 export default function AdminSeoPage() {
-  const [tab, setTab]         = useState<Tab>("Pages");
-  const [search, setSearch]   = useState("");
+  const [tab, setTab]           = useState<Tab>("Pages");
+  const [search, setSearch]     = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [crawling, setCrawling] = useState(false);
+  const [crawlMsg, setCrawlMsg] = useState("");
+  const accessToken = useAuthStore((s) => s.accessToken);
 
-  function handleCrawl() {
+  async function handleCrawl() {
     setCrawling(true);
-    // TODO: trigger crawler job via API
-    setTimeout(() => setCrawling(false), 2500);
+    setCrawlMsg("");
+    try {
+      const res = await fetch(`${API}/seo/crawl`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        },
+      });
+      const data = await res.json().catch(() => ({})) as { message?: string };
+      setCrawlMsg(res.ok ? (data.message ?? "Crawl job queued.") : (data.message ?? "Crawl failed."));
+    } catch {
+      setCrawlMsg("Could not reach server.");
+    } finally {
+      setCrawling(false);
+    }
   }
 
   const avgScore = Math.round(PAGES.reduce((s, p) => s + p.score, 0) / PAGES.length);
@@ -202,6 +220,9 @@ export default function AdminSeoPage() {
           {crawling ? "Crawling…" : "Run crawl"}
         </button>
       </div>
+      {crawlMsg && (
+        <p className="font-sans text-xs text-charcoal/50 dark:text-cream/50">{crawlMsg}</p>
+      )}
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

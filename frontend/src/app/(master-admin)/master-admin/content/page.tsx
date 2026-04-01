@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useAccessToken } from "@/lib/stores/auth-store";
+import { ImageUpload } from "@/components/ui/image-upload";
 import {
   cmsApi, articlesApi,
   type CmsPage, type CmsBanner, type CmsMediaItem, type CmsArticle, type CmsSummary,
@@ -583,10 +584,11 @@ function BlogTab({ token, openForm, onFormOpen, onFormClose }: {
   const [saving,    setSaving]    = useState(false);
 
   // New article form state
-  const [arTitle,   setArTitle]   = useState("");
-  const [arSlug,    setArSlug]    = useState("");
-  const [arCat,     setArCat]     = useState("Design Guides");
-  const [arExcerpt, setArExcerpt] = useState("");
+  const [arTitle,    setArTitle]    = useState("");
+  const [arSlug,     setArSlug]     = useState("");
+  const [arCat,      setArCat]      = useState("Design Guides");
+  const [arExcerpt,  setArExcerpt]  = useState("");
+  const [arCoverUrl, setArCoverUrl] = useState("");
 
   const load = useCallback(async () => {
     try {
@@ -626,9 +628,10 @@ function BlogTab({ token, openForm, onFormOpen, onFormClose }: {
       const article = await articlesApi.create(token, {
         title: arTitle, slug: arSlug, content: "",
         excerpt: arExcerpt || undefined, category: arCat,
+        ...(arCoverUrl ? { coverImage: arCoverUrl } : {}),
       });
       setArticles(prev => [article, ...prev]);
-      setArTitle(""); setArSlug(""); setArExcerpt(""); setArCat("Design Guides");
+      setArTitle(""); setArSlug(""); setArExcerpt(""); setArCat("Design Guides"); setArCoverUrl("");
       onFormClose();
     } catch (e: unknown) {
       alert(e instanceof Error ? e.message : "Create failed");
@@ -684,6 +687,15 @@ function BlogTab({ token, openForm, onFormOpen, onFormClose }: {
                 <textarea id="ar-excerpt" value={arExcerpt} onChange={e => setArExcerpt(e.target.value)} placeholder="Short summary shown in blog listings…" rows={2}
                   className="w-full rounded-lg border border-black/10 px-3 py-2 font-sans text-xs text-charcoal placeholder:text-charcoal/30 outline-none focus:border-black/30 resize-none bg-white" />
               </Field>
+            </div>
+            <div className="md:col-span-2">
+              <ImageUpload
+                label="Cover image"
+                value={arCoverUrl}
+                onChange={setArCoverUrl}
+                accessToken={token}
+                aspectClass="aspect-video"
+              />
             </div>
           </div>
         </FormWrap>

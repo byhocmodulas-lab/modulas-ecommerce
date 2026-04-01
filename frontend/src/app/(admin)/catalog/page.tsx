@@ -8,6 +8,7 @@ import {
 import { formatPrice } from "@/lib/utils/format";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import { productsApi } from "@/lib/api/client";
+import { ImageUpload } from "@/components/ui/image-upload";
 import Link from "next/link";
 
 interface Product {
@@ -33,9 +34,10 @@ const LABEL = "block mb-1.5 font-sans text-[11px] tracking-[0.12em] uppercase te
 
 function NewProductModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
   const { accessToken } = useAuthStore();
-  const [saving, setSaving] = useState(false);
-  const [error, setError]   = useState("");
-  const [form, setForm]     = useState({
+  const [saving, setSaving]     = useState(false);
+  const [error, setError]       = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [form, setForm]         = useState({
     name: "", sku: "", price: "", material: "", description: "",
     lead_time_days: "21", currency: "GBP",
   });
@@ -61,6 +63,7 @@ function NewProductModal({ onClose, onCreated }: { onClose: () => void; onCreate
         finish_options: [],
         is_configurable: false,
         tags: [],
+        ...(imageUrl ? { images: [{ url: imageUrl, is_primary: true }] } : {}),
       });
       onCreated();
       onClose();
@@ -110,6 +113,13 @@ function NewProductModal({ onClose, onCreated }: { onClose: () => void; onCreate
             <label className={LABEL} htmlFor="description">Description</label>
             <textarea rows={3} placeholder="Product description…" className={INPUT + " resize-none"} {...field("description")} />
           </div>
+          <ImageUpload
+            label="Primary image"
+            value={imageUrl}
+            onChange={setImageUrl}
+            accessToken={accessToken ?? undefined}
+            aspectClass="aspect-video"
+          />
           {error && <p className="font-sans text-sm text-red-500">{error}</p>}
           <div className="flex gap-3 pt-2">
             <button

@@ -23,7 +23,7 @@ const STATIC_ROUTES: MetadataRoute.Sitemap = [
 
   // ── Tier 3: Brand + discovery ───────────────────────────────
   { url: `${BASE}/projects`,       priority: 0.7, changeFrequency: "weekly"  },
-  { url: `${BASE}/journal`,        priority: 0.7, changeFrequency: "daily"   },
+  { url: `${BASE}/blog`,           priority: 0.7, changeFrequency: "daily"   },
   { url: `${BASE}/for-designers`,  priority: 0.6, changeFrequency: "monthly" },
   { url: `${BASE}/architects`,     priority: 0.6, changeFrequency: "monthly" },
   { url: `${BASE}/our-story`,      priority: 0.6, changeFrequency: "monthly" },
@@ -108,7 +108,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const articleRoutes: MetadataRoute.Sitemap = articleSlugs.map((slug) => ({
-    url:             `${BASE}/journal/${slug}`,
+    url:             `${BASE}/blog/${slug}`,
     priority:        0.6,
     changeFrequency: "monthly",
   }));

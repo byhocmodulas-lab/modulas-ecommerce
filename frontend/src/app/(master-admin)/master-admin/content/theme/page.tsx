@@ -107,6 +107,16 @@ export default function ThemeEditorPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Apply CSS vars live on every color change so admins see instant feedback
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--color-gold",    settings.colors.gold);
+    root.style.setProperty("--color-charcoal", settings.colors.charcoal);
+    root.style.setProperty("--color-cream",   settings.colors.cream);
+    root.style.setProperty("--surface-primary", settings.colors.background);
+    root.style.setProperty("--text-primary",  settings.colors.text);
+  }, [settings.colors]);
+
   const save = async () => {
     if (!token) return;
     setSaving(true);

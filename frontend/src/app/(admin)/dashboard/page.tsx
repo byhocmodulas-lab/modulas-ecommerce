@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ShoppingBag, Users, Package, TrendingUp, TrendingDown,
   ArrowRight, Clock, CheckCircle2, Truck, AlertCircle,
-  BarChart3, Store,
+  BarChart3, Store, RefreshCw,
 } from "lucide-react";
 import { formatPrice } from "@/lib/utils/format";
 import { useAuthStore } from "@/lib/stores/auth-store";
@@ -80,21 +80,42 @@ const STATUS_COLOUR: Record<string, string> = {
   cancelled: "text-red-500 bg-red-50",
 };
 
+const POLL_INTERVAL = 30_000; // 30 s
+
 export default function AdminDashboard() {
   const { accessToken } = useAuthStore();
   const [orders, setOrders]       = useState<OrdersData | null>(null);
   const [userCount, setUserCount] = useState<number | null>(null);
   const [loading, setLoading]     = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [refreshing, setRefreshing]   = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => {
+  async function fetchData(silent = false) {
     if (!accessToken) { setLoading(false); return; }
-    Promise.all([
-      ordersApi.adminOrders(accessToken, { limit: "10", page: "1" }),
-      authApi.listUsers(accessToken),
-    ]).then(([ord, users]) => {
+    if (!silent) setLoading(true);
+    else setRefreshing(true);
+    try {
+      const [ord, users] = await Promise.all([
+        ordersApi.adminOrders(accessToken, { limit: "10", page: "1" }),
+        authApi.listUsers(accessToken),
+      ]);
       setOrders(ord as OrdersData);
       setUserCount((users as unknown[]).length);
-    }).catch(() => {}).finally(() => setLoading(false));
+      setLastUpdated(new Date());
+    } catch {
+      // keep stale data on error
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchData();
+    intervalRef.current = setInterval(() => fetchData(true), POLL_INTERVAL);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
 
   const totalRevenue = orders?.data.reduce((s, o) => s + o.totalAmount, 0) ?? 0;
@@ -107,11 +128,36 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="font-serif text-3xl text-charcoal mb-1">Dashboard</h1>
-        <p className="font-sans text-sm text-charcoal/40">
-          {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="font-serif text-3xl text-charcoal mb-1">Dashboard</h1>
+          <p className="font-sans text-sm text-charcoal/40">
+            {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          {lastUpdated && (
+            <p className="font-sans text-[11px] text-charcoal/30">
+              Updated {lastUpdated.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+            </p>
+          )}
+          <span className="flex items-center gap-1.5 font-sans text-[11px] text-emerald-600">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            </span>
+            Live
+          </span>
+          <button
+            type="button"
+            onClick={() => fetchData(true)}
+            disabled={refreshing || loading}
+            aria-label="Refresh dashboard"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-black/10 text-charcoal/40 hover:text-gold hover:border-gold/40 disabled:opacity-40 transition-colors"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
+          </button>
+        </div>
       </div>
 
       {/* KPI cards */}
