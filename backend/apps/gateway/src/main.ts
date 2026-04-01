@@ -29,6 +29,8 @@ async function bootstrap() {
           connectSrc: [
             "'self'",
             "https://api.stripe.com",
+            "https://checkout.razorpay.com",
+            "https://*.railway.app",
             process.env.FRONTEND_URL ?? "http://localhost:3000",
           ],
           imgSrc: ["'self'", "data:", "https:"],
@@ -53,8 +55,14 @@ async function bootstrap() {
 
   app.use(compression());
   app.use(cookieParser());
+  const allowedOrigins = [
+    process.env.FRONTEND_URL ?? "http://localhost:3000",
+    // Allow all Vercel preview deployments
+    /^https:\/\/modulas(-[a-z0-9]+)?\.vercel\.app$/,
+  ].filter(Boolean);
+
   app.enableCors({
-    origin: [process.env.FRONTEND_URL ?? "http://localhost:3000"],
+    origin: allowedOrigins,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   });

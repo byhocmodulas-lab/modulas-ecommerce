@@ -1,8 +1,9 @@
 {
   "framework": "nextjs",
-  "buildCommand": "cd frontend && npm run build",
-  "installCommand": "cd frontend && npm install --legacy-peer-deps",
-  "outputDirectory": "frontend/.next",
+  "rootDirectory": "frontend",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install --legacy-peer-deps",
+  "outputDirectory": ".next",
   "git": {
     "deploymentEnabled": {
       "master": true

@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+*.md
+apps/affiliate
+apps/configurator
+apps/vendor
+apps/workshop
+apps/collab
+apps/seo
+apps/intel
+apps/social
+apps/ai
