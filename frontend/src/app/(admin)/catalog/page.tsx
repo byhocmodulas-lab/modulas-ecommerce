@@ -8,7 +8,6 @@ import {
 import { formatPrice } from "@/lib/utils/format";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import { productsApi } from "@/lib/api/client";
-import { ImageUpload } from "@/components/ui/image-upload";
 import Link from "next/link";
 
 interface Product {
@@ -113,13 +112,17 @@ function NewProductModal({ onClose, onCreated }: { onClose: () => void; onCreate
             <label className={LABEL} htmlFor="description">Description</label>
             <textarea rows={3} placeholder="Product description…" className={INPUT + " resize-none"} {...field("description")} />
           </div>
-          <ImageUpload
-            label="Primary image"
-            value={imageUrl}
-            onChange={setImageUrl}
-            accessToken={accessToken ?? undefined}
-            aspectClass="aspect-video"
-          />
+          <div>
+            <label className={LABEL} htmlFor="imageUrl">Primary image URL</label>
+            <input
+              id="imageUrl"
+              type="url"
+              placeholder="https://assets.modulas.in/..."
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              className={INPUT}
+            />
+          </div>
           {error && <p className="font-sans text-sm text-red-500">{error}</p>}
           <div className="flex gap-3 pt-2">
             <button

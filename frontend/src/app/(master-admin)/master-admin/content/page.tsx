@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useAccessToken } from "@/lib/stores/auth-store";
-import { ImageUpload } from "@/components/ui/image-upload";
 import {
   cmsApi, articlesApi,
   type CmsPage, type CmsBanner, type CmsMediaItem, type CmsArticle, type CmsSummary,
@@ -689,13 +688,10 @@ function BlogTab({ token, openForm, onFormOpen, onFormClose }: {
               </Field>
             </div>
             <div className="md:col-span-2">
-              <ImageUpload
-                label="Cover image"
-                value={arCoverUrl}
-                onChange={setArCoverUrl}
-                accessToken={token}
-                aspectClass="aspect-video"
-              />
+              <Field id="ar-cover" label="Cover image URL">
+                <input id="ar-cover" type="url" value={arCoverUrl} onChange={e => setArCoverUrl(e.target.value)}
+                  placeholder="https://assets.modulas.in/blog/..." className={inputCls} />
+              </Field>
             </div>
           </div>
         </FormWrap>
