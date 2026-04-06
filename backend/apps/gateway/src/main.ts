@@ -93,8 +93,8 @@ async function bootstrap() {
         .build();
       const document = SwaggerModule.createDocument(app, config);
       SwaggerModule.setup("api/docs", app, document);
-    } catch (e) {
-      console.warn("Swagger setup skipped:", e.message);
+    } catch (e: unknown) {
+      console.warn("Swagger setup skipped:", e instanceof Error ? e.message : e);
     }
   }
 
