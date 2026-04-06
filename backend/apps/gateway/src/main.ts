@@ -84,14 +84,18 @@ async function bootstrap() {
 
   // Swagger (dev only)
   if (process.env.NODE_ENV !== "production") {
-    const config = new DocumentBuilder()
-      .setTitle("Modulas API")
-      .setDescription("Luxury Furniture Ecommerce API")
-      .setVersion("1.0")
-      .addBearerAuth()
-      .build();
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup("api/docs", app, document);
+    try {
+      const config = new DocumentBuilder()
+        .setTitle("Modulas API")
+        .setDescription("Luxury Furniture Ecommerce API")
+        .setVersion("1.0")
+        .addBearerAuth()
+        .build();
+      const document = SwaggerModule.createDocument(app, config);
+      SwaggerModule.setup("api/docs", app, document);
+    } catch (e) {
+      console.warn("Swagger setup skipped:", e.message);
+    }
   }
 
   await app.listen(process.env.PORT ?? 4000);
