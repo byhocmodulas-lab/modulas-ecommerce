@@ -1,6 +1,6 @@
 import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { WishlistItem } from './entities/wishlist-item.entity';
 
 @Injectable()
@@ -8,6 +8,7 @@ export class WishlistService {
   constructor(
     @InjectRepository(WishlistItem)
     private readonly repo: Repository<WishlistItem>,
+    private readonly dataSource: DataSource,
   ) {}
 
   getForUser(userId: string) {
@@ -30,11 +31,13 @@ export class WishlistService {
 
   /** Sync bulk — replaces server wishlist with client list (called on login) */
   async sync(userId: string, productIds: string[]) {
-    await this.repo.delete({ userId });
-    if (productIds.length === 0) return [];
-    const items = productIds.map((productId) =>
-      this.repo.create({ userId, productId }),
-    );
-    return this.repo.save(items);
+    return this.dataSource.transaction(async (em) => {
+      await em.delete(WishlistItem, { userId });
+      if (productIds.length === 0) return [];
+      const items = productIds.map((productId) =>
+        em.create(WishlistItem, { userId, productId }),
+      );
+      return em.save(WishlistItem, items);
+    });
   }
 }

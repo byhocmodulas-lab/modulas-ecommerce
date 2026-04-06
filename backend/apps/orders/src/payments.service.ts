@@ -23,9 +23,17 @@ export class PaymentsService {
     private readonly config: ConfigService,
     private readonly invoicesService: InvoicesService,
   ) {
-    this.stripe = new Stripe(this.config.getOrThrow<string>('STRIPE_SECRET_KEY'), {
-      apiVersion: '2024-04-10',
-    });
+    const stripeKey = this.config.get<string>('STRIPE_SECRET_KEY');
+    if (stripeKey) {
+      this.stripe = new Stripe(stripeKey, { apiVersion: '2024-04-10' });
+    } else {
+      this.logger.warn('STRIPE_SECRET_KEY not set — payment endpoints are disabled');
+    }
+  }
+
+  private get stripeClient(): Stripe {
+    if (!this.stripe) throw new InternalServerErrorException('Payments are not configured');
+    return this.stripe;
   }
 
   // ── Create PaymentIntent for an order ────────────────────────
@@ -44,7 +52,7 @@ export class PaymentsService {
 
     const amountInPaise = Math.round(Number(order.totalAmount) * 100);
 
-    const intent = await this.stripe.paymentIntents.create({
+    const intent = await this.stripeClient.paymentIntents.create({
       amount: amountInPaise,
       currency: (order.currency ?? 'inr').toLowerCase(),
       metadata: { orderId: order.id, userId },
@@ -65,7 +73,7 @@ export class PaymentsService {
 
     let event: Stripe.Event;
     try {
-      event = this.stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+      event = this.stripeClient.webhooks.constructEvent(rawBody, signature, webhookSecret);
     } catch (err) {
       this.logger.error('Stripe webhook signature verification failed', err);
       throw new BadRequestException('Invalid Stripe webhook signature');

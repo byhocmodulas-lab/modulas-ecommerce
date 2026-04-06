@@ -16,7 +16,10 @@ import { CategoriesService } from '../categories/categories.service';
     ElasticsearchModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        node: config.get<string>('ELASTICSEARCH_URL', 'http://localhost:9200'),
+        // Falls back to a no-op node — ES is optional; all search falls back to TypeORM
+        node: config.get<string>('ELASTICSEARCH_URL') ?? 'http://localhost:9200',
+        maxRetries: 0,
+        requestTimeout: 3000,
       }),
     }),
   ],

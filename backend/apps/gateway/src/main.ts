@@ -2,6 +2,7 @@ import { NestFactory } from "@nestjs/core";
 import { ValidationPipe, VersioningType } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { GatewayModule } from "./gateway.module";
+import { GlobalExceptionFilter } from "../../../libs/common/src/filters/http-exception.filter";
 import helmet from "helmet";
 import * as compression from "compression";
 import * as cookieParser from "cookie-parser";
@@ -69,6 +70,9 @@ async function bootstrap() {
 
   // Versioning
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: "1" });
+
+  // Global exception filter — prevents stack trace leaks in production
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   // Global validation
   app.useGlobalPipes(

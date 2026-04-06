@@ -15,6 +15,14 @@ import { ConfigService } from '@nestjs/config';
         ssl: config.get<string>('NODE_ENV') === 'production'
           ? { rejectUnauthorized: false }
           : false,
+        // Railway free tier: max 25 connections. Keep pool small.
+        extra: {
+          max: config.get<string>('NODE_ENV') === 'production' ? 10 : 5,
+          idleTimeoutMillis: 30_000,
+          connectionTimeoutMillis: 5_000,
+        },
+        retryAttempts: 5,
+        retryDelay: 3_000,
       }),
     }),
   ],
