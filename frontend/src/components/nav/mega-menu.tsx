@@ -173,9 +173,9 @@ export function MegaMenu({ isOpen, section, onClose }: MegaMenuProps) {
       aria-label="Site navigation"
       className={cn(
         "absolute top-full inset-x-0 z-40",
-        "bg-white/98 dark:bg-charcoal-950/98 backdrop-blur-xl",
-        "border-t border-black/6 dark:border-white/6",
-        "shadow-luxury-lg",
+        "bg-white dark:bg-charcoal-950",
+        "border-t-2 border-gold/30 dark:border-gold/20",
+        "shadow-[0_8px_40px_rgba(0,0,0,0.18)]",
         "transition-all duration-300 ease-out origin-top",
         isOpen
           ? "opacity-100 scale-y-100 pointer-events-auto"

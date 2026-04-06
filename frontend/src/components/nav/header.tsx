@@ -58,8 +58,11 @@ export function Header() {
       <header
         className={cn(
           "fixed top-0 inset-x-0 z-50 transition-all duration-300",
-          "bg-white dark:bg-charcoal-950 border-b border-black/8 dark:border-white/8",
-          scrolled && "shadow-luxury",
+          "bg-white dark:bg-charcoal-950",
+          megaOpen
+            ? "border-b-0 shadow-none"
+            : "border-b border-black/8 dark:border-white/8",
+          scrolled && !megaOpen && "shadow-luxury",
         )}
       >
         {/* Announcement bar — hidden when scrolled for cleanliness */}
@@ -154,16 +157,16 @@ export function Header() {
             </button>
           </div>
         </div>
-      </header>
 
-      {/* Mega menu — bridge hover gap between nav button and panel */}
-      <div onMouseEnter={keepMega} onMouseLeave={closeMega}>
-        <MegaMenu
-          isOpen={megaOpen}
-          section={megaSection}
-          onClose={() => setMegaSection(null)}
-        />
-      </div>
+        {/* Mega menu — inside header so absolute top-full anchors correctly */}
+        <div onMouseEnter={keepMega} onMouseLeave={closeMega}>
+          <MegaMenu
+            isOpen={megaOpen}
+            section={megaSection}
+            onClose={() => setMegaSection(null)}
+          />
+        </div>
+      </header>
 
       {/* Mobile drawer */}
       <MobileMenu
