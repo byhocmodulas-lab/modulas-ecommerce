@@ -47,6 +47,7 @@
     "passport-jwt": "^4.0.1",
     "pg": "^8.11.3",
     "reflect-metadata": "^0.2.1",
+    "resend": "^6.10.0",
     "rxjs": "^7.8.1",
     "safer-buffer": "^2.1.2",
     "stripe": "^15.12.0",
