@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { InjectQueue } from '@nestjs/bullmq';
-// @ts-ignore — install bullmq separately: npm install bullmq
 import { Queue } from 'bullmq';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { Product } from './entities/product.entity';

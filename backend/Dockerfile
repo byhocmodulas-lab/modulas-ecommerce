@@ -10,6 +10,7 @@ COPY apps/auth    ./apps/auth
 COPY apps/catalog ./apps/catalog
 COPY apps/orders  ./apps/orders
 COPY apps/content ./apps/content
+COPY apps/social  ./apps/social
 COPY libs         ./libs
 
 RUN npm install --ignore-scripts
