@@ -19,6 +19,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { Role, ADMIN_ROLES } from '../../../libs/common/src/enums/role.enum';
+import { EmailService } from './email.service';
 
 /** Roles that require admin approval before access is granted */
 const PENDING_APPROVAL_ROLES: Role[] = [Role.Architect, Role.Vendor, Role.Intern];
@@ -30,6 +31,7 @@ export class AuthService {
     private readonly userRepo: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
+    private readonly emailService: EmailService,
   ) {}
 
   // ─── Registration ──────────────────────────────────────────────
@@ -42,8 +44,6 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
     const requestedRole = dto.role ?? Role.Customer;
-
-    // Roles like architect/vendor start as pending — isVerified = false
     const needsApproval = PENDING_APPROVAL_ROLES.includes(requestedRole);
 
     const user = this.userRepo.create({
@@ -52,11 +52,9 @@ export class AuthService {
       clerkId: `local_${crypto.randomUUID()}`,
       role: requestedRole,
       isVerified: !needsApproval,
-      metadata: {
-        passwordHash,
-        pendingApproval: needsApproval,
-        registeredAt: new Date().toISOString(),
-      },
+      pendingApproval: needsApproval,
+      passwordHash,
+      metadata: { registeredAt: new Date().toISOString() },
     });
 
     const saved = await this.userRepo.save(user);
@@ -73,14 +71,16 @@ export class AuthService {
   // ─── Login ─────────────────────────────────────────────────────
 
   async login(dto: LoginDto) {
-    const user = await this.userRepo.findOne({
-      where: { email: dto.email.toLowerCase() },
-      withDeleted: false,
-    });
+    // Load with secret columns explicitly selected
+    const user = await this.userRepo
+      .createQueryBuilder('u')
+      .addSelect('u.passwordHash')
+      .where('u.email = :email', { email: dto.email.toLowerCase() })
+      .getOne();
 
     // Constant-time comparison to prevent user enumeration
     const dummyHash = '$2b$12$invalidhashpadding000000000000000000000000000000000000000';
-    const hash = (user?.metadata as any)?.passwordHash ?? dummyHash;
+    const hash = user?.passwordHash ?? dummyHash;
     const valid = await bcrypt.compare(dto.password, hash);
 
     if (!user || !valid) {
@@ -89,7 +89,7 @@ export class AuthService {
 
     return {
       ...(await this.issueTokenPair(user)),
-      pendingApproval: !!(user.metadata as any)?.pendingApproval,
+      pendingApproval: user.pendingApproval,
     };
   }
 
@@ -110,16 +110,25 @@ export class AuthService {
       throw new UnauthorizedException('Invalid token type');
     }
 
-    const user = await this.userRepo.findOne({ where: { id: payload.sub } });
+    const user = await this.userRepo
+      .createQueryBuilder('u')
+      .addSelect('u.refreshTokenHash')
+      .where('u.id = :id', { id: payload.sub })
+      .getOne();
+
     if (!user) throw new UnauthorizedException('User not found');
 
-    // Validate stored refresh token hash matches
-    const storedHash = (user.metadata as any)?.refreshTokenHash as string | undefined;
-    if (!storedHash) throw new UnauthorizedException('No active session');
+    if (!user.refreshTokenHash) throw new UnauthorizedException('No active session');
 
     const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+
+    // Guard against length mismatch before timingSafeEqual
+    if (user.refreshTokenHash.length !== tokenHash.length) {
+      throw new UnauthorizedException('Refresh token revoked');
+    }
+
     const hashMatch = crypto.timingSafeEqual(
-      Buffer.from(storedHash, 'hex'),
+      Buffer.from(user.refreshTokenHash, 'hex'),
       Buffer.from(tokenHash, 'hex'),
     );
     if (!hashMatch) throw new UnauthorizedException('Refresh token revoked');
@@ -130,24 +139,15 @@ export class AuthService {
   // ─── Logout ────────────────────────────────────────────────────
 
   async logout(userId: string): Promise<void> {
-    const user = await this.userRepo.findOne({ where: { id: userId } });
-    if (!user) return;
-
-    // Revoke refresh token by clearing stored hash
-    const meta = { ...(user.metadata as Record<string, unknown>) };
-    delete meta.refreshTokenHash;
-    await this.userRepo.update(userId, { metadata: meta as any });
+    await this.userRepo.update(userId, { refreshTokenHash: null });
   }
 
   // ─── Current user ──────────────────────────────────────────────
 
-  async me(userId: string): Promise<Omit<User, 'metadata'>> {
+  async me(userId: string): Promise<ReturnType<AuthService['sanitize']>> {
     const user = await this.userRepo.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
-
-    // Strip sensitive metadata before returning
-    const { metadata: _, ...safe } = user;
-    return safe as Omit<User, 'metadata'>;
+    return this.sanitize(user);
   }
 
   // ─── Password reset ────────────────────────────────────────────
@@ -167,61 +167,52 @@ export class AuthService {
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
     await this.userRepo.update(user.id, {
-      metadata: {
-        ...(user.metadata as Record<string, unknown>),
-        passwordResetHash: tokenHash,
-        passwordResetExpiry: expiresAt.toISOString(),
-      } as any,
+      passwordResetHash: tokenHash,
+      passwordResetExpiry: expiresAt,
     });
 
-    // TODO: send email via Resend — token is `token` (not the hash)
-    // await this.emailService.sendPasswordReset(user.email, token);
+    await this.emailService.sendPasswordReset(user.email, user.fullName ?? user.email, token);
 
     return { message: 'If an account exists, a reset link has been sent.' };
   }
 
   async resetPassword(dto: ResetPasswordDto) {
-    // V-01 FIX: Use QueryBuilder to search by token hash directly in the JSONB column.
-    // This avoids the full table scan that existed previously (`find()` with no WHERE).
-    // PostgreSQL can use GIN/expression indexes on JSONB if needed for scale.
     const tokenHash = crypto.createHash('sha256').update(dto.token).digest('hex');
 
+    // Load with select:false columns explicitly
     const user = await this.userRepo
       .createQueryBuilder('u')
-      .where(`u.metadata->>'passwordResetHash' = :hash`, { hash: tokenHash })
+      .addSelect(['u.passwordResetHash', 'u.passwordResetExpiry'])
+      .where('u.passwordResetHash = :hash', { hash: tokenHash })
       .getOne();
 
     if (!user) throw new BadRequestException('Invalid or expired reset token');
 
-    const meta = user.metadata as any;
-
-    // V-15 FIX: Guard against length mismatch before timingSafeEqual
-    const storedHash: string = meta.passwordResetHash ?? '';
+    // Guard against length mismatch before timingSafeEqual
+    const storedHash = user.passwordResetHash ?? '';
     if (storedHash.length !== tokenHash.length) {
       throw new BadRequestException('Invalid or expired reset token');
     }
 
-    // Extra constant-time comparison as defence-in-depth (hash already matched above)
     const match = crypto.timingSafeEqual(
       Buffer.from(storedHash, 'hex'),
       Buffer.from(tokenHash, 'hex'),
     );
     if (!match) throw new BadRequestException('Invalid or expired reset token');
 
-    if (new Date(meta.passwordResetExpiry) < new Date()) {
+    if (!user.passwordResetExpiry || user.passwordResetExpiry < new Date()) {
       throw new BadRequestException('Reset token has expired');
     }
 
     this.validatePasswordStrength(dto.newPassword);
     const passwordHash = await bcrypt.hash(dto.newPassword, 12);
 
-    const updatedMeta = { ...(user.metadata as Record<string, unknown>) };
-    updatedMeta.passwordHash = passwordHash;
-    delete updatedMeta.passwordResetHash;
-    delete updatedMeta.passwordResetExpiry;
-    delete updatedMeta.refreshTokenHash; // invalidate all sessions
-
-    await this.userRepo.update(user.id, { metadata: updatedMeta as any });
+    await this.userRepo.update(user.id, {
+      passwordHash,
+      passwordResetHash: null,
+      passwordResetExpiry: null,
+      refreshTokenHash: null, // invalidate all sessions
+    });
 
     return { message: 'Password reset successfully. Please log in.' };
   }
@@ -245,7 +236,6 @@ export class AuthService {
   }
 
   async updateRole(requestingUser: User, targetId: string, dto: UpdateRoleDto): Promise<User> {
-    // Only master_admin can assign master_admin
     if (dto.role === Role.MasterAdmin && requestingUser.role !== Role.MasterAdmin) {
       throw new ForbiddenException('Only a master admin can assign the master admin role');
     }
@@ -254,15 +244,11 @@ export class AuthService {
     if (!user) throw new NotFoundException('User not found');
 
     const needsApproval = PENDING_APPROVAL_ROLES.includes(dto.role);
-    const meta = { ...(user.metadata as Record<string, unknown>) };
-    if (!needsApproval) {
-      delete meta.pendingApproval;
-    }
 
     await this.userRepo.update(targetId, {
       role: dto.role,
       isVerified: !needsApproval,
-      metadata: meta as any,
+      pendingApproval: needsApproval,
     });
 
     return (await this.userRepo.findOne({ where: { id: targetId } }))!;
@@ -272,15 +258,13 @@ export class AuthService {
     const user = await this.userRepo.findOne({ where: { id: targetId } });
     if (!user) throw new NotFoundException('User not found');
 
-    const meta = { ...(user.metadata as Record<string, unknown>) };
-    delete meta.pendingApproval;
-
     await this.userRepo.update(targetId, {
       isVerified: true,
-      metadata: meta as any,
+      pendingApproval: false,
     });
 
-    // TODO: send approval email
+    await this.emailService.sendApprovalNotification(user.email, user.fullName ?? user.email, user.role);
+
     return (await this.userRepo.findOne({ where: { id: targetId } }))!;
   }
 
@@ -306,10 +290,9 @@ export class AuthService {
       clerkId: `local_${crypto.randomUUID()}`,
       role: Role.MasterAdmin,
       isVerified: true,
-      metadata: {
-        passwordHash,
-        registeredAt: new Date().toISOString(),
-      },
+      pendingApproval: false,
+      passwordHash,
+      metadata: { registeredAt: new Date().toISOString() },
     });
 
     const saved = await this.userRepo.save(user);
@@ -336,10 +319,7 @@ export class AuthService {
       type: 'access',
     };
 
-    const refreshPayload = {
-      sub: user.id,
-      type: 'refresh',
-    };
+    const refreshPayload = { sub: user.id, type: 'refresh' };
 
     const accessToken = this.jwtService.sign(accessPayload, {
       expiresIn: '15m',
@@ -351,25 +331,14 @@ export class AuthService {
       secret: this.config.getOrThrow('JWT_REFRESH_SECRET'),
     });
 
-    // Store hashed refresh token for rotation validation.
-    // V-18: must be awaited — a fire-and-forget save can race with an immediate
-    // refresh call, causing "No active session" errors if the hash write loses.
-    const refreshHash = crypto
-      .createHash('sha256')
-      .update(refreshToken)
-      .digest('hex');
-
-    await this.userRepo.update(user.id, {
-      metadata: {
-        ...(user.metadata as Record<string, unknown>),
-        refreshTokenHash: refreshHash,
-      } as any,
-    });
+    // Store hashed refresh token — awaited to prevent race on immediate refresh call
+    const refreshHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+    await this.userRepo.update(user.id, { refreshTokenHash: refreshHash });
 
     return {
       accessToken,
       refreshToken,
-      expiresIn: 15 * 60, // seconds
+      expiresIn: 15 * 60,
       user: this.sanitize(user),
     };
   }
@@ -382,6 +351,7 @@ export class AuthService {
       avatarUrl: user.avatarUrl,
       role: user.role,
       isVerified: user.isVerified,
+      pendingApproval: user.pendingApproval,
       createdAt: user.createdAt,
     };
   }

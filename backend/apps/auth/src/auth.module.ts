@@ -11,6 +11,7 @@ import { User } from './entities/user.entity';
 import { UserProfile } from './entities/user-profile.entity';
 import { ProfileService } from './profile.service';
 import { ProfileController } from './profile.controller';
+import { EmailService } from './email.service';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { ProfileController } from './profile.controller';
     }),
   ],
   controllers: [AuthController, ProfileController],
-  providers: [AuthService, JwtStrategy, ProfileService],
-  exports: [AuthService, JwtModule, PassportModule, ProfileService],
+  providers: [AuthService, JwtStrategy, ProfileService, EmailService],
+  exports: [AuthService, JwtModule, PassportModule, ProfileService, EmailService],
 })
 export class AuthModule {}
