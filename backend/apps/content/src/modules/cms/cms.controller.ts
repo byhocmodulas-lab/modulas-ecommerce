@@ -43,7 +43,7 @@ export class CmsController {
   @Get('pages/:slug/published')
   @Public()
   getPublishedPage(@Param('slug') slug: string) {
-    return this.cmsService.getPage(slug);
+    return this.cmsService.getPublishedPage(slug);
   }
 
   @Get('pages/:slug')

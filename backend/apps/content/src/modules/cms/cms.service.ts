@@ -44,6 +44,11 @@ export class CmsService {
     return page;
   }
 
+  /** Public storefront variant — returns null instead of 404 when not found */
+  async getPublishedPage(slug: string): Promise<CmsPage | null> {
+    return this.pageRepo.findOne({ where: { slug } }) ?? null;
+  }
+
   async createPage(dto: CreateCmsPageDto, userId: string): Promise<CmsPage> {
     const exists = await this.pageRepo.findOne({ where: { slug: dto.slug } });
     if (exists) throw new ConflictException(`Slug "${dto.slug}" already exists`);
