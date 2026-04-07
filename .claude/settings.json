@@ -1,0 +1,48 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx railway:*)",
+      "Bash(xargs grep:*)",
+      "Bash(xargs ls:*)",
+      "Bash(node -e \"const p = require\\('./package.json'\\); const deps = {...p.dependencies,...p.devDependencies}; Object.keys\\(deps\\).filter\\(k => /cache|redis|resend|ioredis|bull/.test\\(k\\)\\).forEach\\(k => console.log\\(k, deps[k]\\)\\)\")",
+      "Bash(railway status:*)",
+      "Bash(railway link:*)",
+      "Bash(railway whoami:*)",
+      "Bash(railway list:*)",
+      "Bash(railway service:*)",
+      "Bash(railway variables:*)",
+      "Bash(railway ps:*)",
+      "Bash(railway deployment:*)",
+      "Bash(railway logs:*)",
+      "Bash(python -c \"import json,sys; deps=json.load\\(sys.stdin\\); [print\\(d['id'], d['status'], d.get\\('meta',{}\\).get\\('exitCode',''\\), d.get\\('meta',{}\\).get\\('error',''\\)\\) for d in deps[:5]]\")",
+      "Bash(python -c \"import json,sys; deps=json.load\\(sys.stdin\\); print\\(json.dumps\\(deps[1], indent=2\\)\\)\")",
+      "Bash(railway redeploy:*)",
+      "Bash(python -c \"import json,sys; p=json.load\\(sys.stdin\\); print\\('build:', p.get\\('scripts',{}\\).get\\('build','NOT FOUND'\\)\\); print\\('start:', p.get\\('scripts',{}\\).get\\('start','NOT FOUND'\\)\\)\")",
+      "Bash(node dist/apps/gateway/src/main)",
+      "Bash(curl -s http://localhost:4000/api/health)",
+      "Bash(kill %1)",
+      "Bash(npx nest:*)",
+      "Bash(railway up:*)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); const d=p.dependencies; const keys=Object.keys\\(d\\).filter\\(k=>k.includes\\('nestjs'\\)\\); keys.forEach\\(k=>console.log\\(k,d[k]\\)\\)\")",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\('@nestjs/jwt:', p.dependencies['@nestjs/jwt']\\); console.log\\('@nestjs/passport:', p.dependencies['@nestjs/passport']\\)\")",
+      "Bash(curl -s https://modulas-ecommerce-production.up.railway.app/api/health)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\" https://modulas-ecommerce-production.up.railway.app/api/v1/auth/login -X POST -H \"Content-Type: application/json\" -d '{\"email\":\"test@test.com\",\"password\":\"wrong\"}')",
+      "Bash(curl -s -w \" \\(HTTP %{http_code}\\)\\\\n\" https://modulas-ecommerce-production.up.railway.app/api/health)",
+      "Bash(curl -sv https://modulas-ecommerce-production.up.railway.app/)",
+      "Bash(railway ssh:*)",
+      "Bash(railway restart:*)",
+      "Bash(railway variable:*)",
+      "Bash(railway domain:*)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\" https://modulas-ecommerce-production.up.railway.app/api/v1/auth/login -X POST -H \"Content-Type: application/json\" -d '{\"email\":\"x@x.com\",\"password\":\"wrong123\"}')",
+      "Bash(railway connect:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:vFdRxqRyXdlQqqNlCjhMxZMxsiiLYeKl@hopper.proxy.rlwy.net:41069/railway\" node migrate.js)",
+      "Bash(curl -s -X POST https://modulas-ecommerce-production.up.railway.app/api/v1/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"nonexistent@test.com\",\"password\":\"wrong123\"}')",
+      "Bash(curl -s -X POST https://modulas-ecommerce-production.up.railway.app/api/v1/auth/bootstrap -H 'Content-Type: application/json' -d '{\"setupToken\":\"modulas-setup-2026\",\"email\":\"admin@modulas.com\",\"password\":\"Modulas@2026\",\"fullName\":\"Master Admin\"}')",
+      "Bash(curl -s -X POST https://modulas-ecommerce-production.up.railway.app/api/v1/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"admin@modulas.com\",\"password\":\"Modulas@2026\"}')",
+      "Bash(node -e ':*)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\Admin\\.claude"
+    ]
+  }
+}
