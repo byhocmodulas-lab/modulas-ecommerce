@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Component, type ReactNode, lazy, Suspense } from "react";
 
-function SignInLink() {
+/** Simple sign-in link — no Clerk dependency. */
+export default function ClerkAuthSection() {
   return (
     <Link
       href="/login"
@@ -11,61 +11,5 @@ function SignInLink() {
     >
       Sign In
     </Link>
-  );
-}
-
-class ClerkErrorBoundary extends Component<
-  { children: ReactNode; fallback: ReactNode },
-  { hasError: boolean }
-> {
-  constructor(props: { children: ReactNode; fallback: ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-  render() {
-    if (this.state.hasError) return this.props.fallback;
-    return this.props.children;
-  }
-}
-
-const ClerkWidgets = lazy(async () => {
-  const { SignedIn, SignedOut, UserButton } = await import("@clerk/nextjs");
-  return {
-    default: function ClerkAuth() {
-      return (
-        <>
-          <SignedIn>
-            <UserButton
-              appearance={{
-                elements: {
-                  avatarBox: "w-8 h-8 ring-1 ring-gold/30 hover:ring-gold transition-all",
-                },
-              }}
-            />
-          </SignedIn>
-          <SignedOut>
-            <SignInLink />
-          </SignedOut>
-        </>
-      );
-    },
-  };
-});
-
-export default function ClerkAuthSection() {
-  // Skip Clerk entirely if no publishable key is configured
-  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
-    return <SignInLink />;
-  }
-
-  return (
-    <ClerkErrorBoundary fallback={<SignInLink />}>
-      <Suspense fallback={<SignInLink />}>
-        <ClerkWidgets />
-      </Suspense>
-    </ClerkErrorBoundary>
   );
 }

@@ -22,8 +22,6 @@ const inter = Inter({
   display: "swap",
 });
 
-const CLERK_KEY = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
 export const metadata: Metadata = {
   metadataBase: new URL("https://modulas.in"),
   title: {
@@ -43,12 +41,12 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const inner = (
+  return (
     <html lang="en" suppressHydrationWarning className={`${cormorant.variable} ${inter.variable}`}>
       <body className="font-sans antialiased">
         <ThemeProvider>
@@ -70,12 +68,4 @@ export default async function RootLayout({
       </body>
     </html>
   );
-
-  // Only wrap with ClerkProvider when keys are configured
-  if (CLERK_KEY) {
-    const { ClerkProvider } = await import("@clerk/nextjs");
-    return <ClerkProvider>{inner}</ClerkProvider>;
-  }
-
-  return inner;
 }
