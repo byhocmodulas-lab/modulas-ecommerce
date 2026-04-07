@@ -14,7 +14,7 @@ COPY apps/content ./apps/content
 COPY apps/social  ./apps/social
 COPY libs         ./libs
 
-RUN npm install --ignore-scripts
+RUN npm install --ignore-scripts --legacy-peer-deps
 
 # Build the gateway (entry point)
 RUN npx nest build gateway
@@ -27,7 +27,7 @@ ENV NODE_ENV=production
 
 # Only copy production deps + built output
 COPY package.json ./
-RUN npm install --omit=dev --ignore-scripts
+RUN npm install --omit=dev --ignore-scripts --legacy-peer-deps
 
 COPY --from=builder /app/dist ./dist
 
