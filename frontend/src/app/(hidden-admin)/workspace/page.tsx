@@ -1,37 +1,18 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import * as authApi from "@/lib/api/auth";
-
-const ACCESS_CODE = process.env.NEXT_PUBLIC_ADMIN_ACCESS_CODE ?? "modulas-x";
-
-type Step = "code" | "credentials" | "error";
 
 export default function WorkspacePage() {
   const router   = useRouter();
   const setAuth  = useAuthStore(s => s.setAuth);
 
-  const [step,     setStep]     = useState<Step>("code");
-  const [code,     setCode]     = useState("");
   const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
   const [error,    setError]    = useState("");
   const [loading,  setLoading]  = useState(false);
-  const codeRef = useRef<HTMLInputElement>(null);
-
-  function verifyCode(e: React.FormEvent) {
-    e.preventDefault();
-    if (code.trim() === ACCESS_CODE) {
-      setStep("credentials");
-      setError("");
-    } else {
-      setError("Invalid access code.");
-      setCode("");
-      codeRef.current?.focus();
-    }
-  }
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -76,30 +57,7 @@ export default function WorkspacePage() {
           </span>
         </div>
 
-        {step === "code" && (
-          <form onSubmit={verifyCode} className="space-y-4">
-            <input
-              ref={codeRef}
-              type="password"
-              value={code}
-              onChange={e => setCode(e.target.value)}
-              placeholder="Access code"
-              autoComplete="off"
-              autoFocus
-              className="w-full bg-white/5 border border-white/10 text-white placeholder-white/20 rounded px-4 py-3 font-sans text-sm focus:outline-none focus:border-white/30 transition-colors"
-            />
-            {error && <p className="font-sans text-xs text-red-400">{error}</p>}
-            <button
-              type="submit"
-              className="w-full bg-white/8 hover:bg-white/12 border border-white/10 text-white/60 hover:text-white rounded px-4 py-3 font-sans text-sm transition-colors"
-            >
-              Continue
-            </button>
-          </form>
-        )}
-
-        {step === "credentials" && (
-          <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-4">
             <input
               type="email"
               value={email}
@@ -128,7 +86,6 @@ export default function WorkspacePage() {
               {loading ? "Verifying…" : "Sign in"}
             </button>
           </form>
-        )}
 
       </div>
     </div>
