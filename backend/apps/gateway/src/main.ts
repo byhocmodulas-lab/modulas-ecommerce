@@ -83,8 +83,8 @@ async function bootstrap() {
     }),
   );
 
-  // API prefix
-  app.setGlobalPrefix("api");
+  // API prefix — exclude root so AppController's GET / still responds
+  app.setGlobalPrefix("api", { exclude: ["/"] });
 
   // Swagger (dev only)
   if (process.env.NODE_ENV !== "production") {
