@@ -53,7 +53,10 @@ export default function MasterAdminPage() {
     if (!token) return;
     try {
       setUsersLoading(true);
-      setUsers(await authApi.listUsers(token));
+      const result = await authApi.listUsers(token);
+      // Guard: backend may wrap in { data: [...] } — unwrap defensively
+      const list = Array.isArray(result) ? result : (result as any)?.data ?? [];
+      setUsers(list);
     } catch { /* keep null */ } finally { setUsersLoading(false); }
   }, [token]);
 
@@ -67,21 +70,22 @@ export default function MasterAdminPage() {
       });
       if (!res.ok) return;
       const data = await res.json();
-      setRecentOrders(data.data ?? []);
+      setRecentOrders(Array.isArray(data.data) ? data.data : []);
       if (data.meta?.total != null) setTotalOrders(data.meta.total);
     } catch { /* ignore */ } finally { setOrdersLoading(false); }
   }, [token]);
 
   useEffect(() => { loadUsers(); loadOrders(); }, [loadUsers, loadOrders]);
 
-  const totalUsers   = users?.length ?? null;
-  const pendingCount = users?.filter(u => !u.isVerified && u.role !== "customer").length ?? null;
-  const vendorApps   = users?.filter(u => u.role === "vendor"  && !u.isVerified).length ?? null;
-  const creatorReqs  = users?.filter(u => u.role === "creator" && !u.isVerified).length ?? null;
+  const safeUsers    = Array.isArray(users) ? users : [];
+  const totalUsers   = users !== null ? safeUsers.length : null;
+  const pendingCount = users !== null ? safeUsers.filter(u => !u.isVerified && u.role !== "customer").length : null;
+  const vendorApps   = users !== null ? safeUsers.filter(u => u.role === "vendor"  && !u.isVerified).length : null;
+  const creatorReqs  = users !== null ? safeUsers.filter(u => u.role === "creator" && !u.isVerified).length : null;
 
-  const pendingUsers = users
-    ?.filter(u => !u.isVerified && u.role !== "customer")
-    .slice(0, 5) ?? [];
+  const pendingUsers = safeUsers
+    .filter(u => !u.isVerified && u.role !== "customer")
+    .slice(0, 5);
 
   const stats = [
     { label: "Total Users",         value: usersLoading  ? null : totalUsers,   sub: "registered accounts",  up: true,  placeholder: false },
