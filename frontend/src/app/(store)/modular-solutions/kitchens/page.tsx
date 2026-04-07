@@ -3,7 +3,23 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Modular Kitchens — Straight, L-Shape, U-Shape, Island | Modulas",
-  description: "Custom modular kitchens for Indian homes. 6+ layouts, 120+ finishes, German hardware. Factory-direct pricing with free home visit and 3D design.",
+  description: "Custom modular kitchens designed for Indian homes. Choose from 6+ layouts — straight, L-shape, U-shape, island, parallel. 120+ finishes, German hardware, 10-year warranty. Free home visit and 3D design.",
+  keywords: [
+    "modular kitchen India",
+    "modular kitchen Gurgaon",
+    "modular kitchen Delhi",
+    "L shape modular kitchen",
+    "U shape modular kitchen",
+    "island kitchen India",
+    "custom modular kitchen price India",
+    "modular kitchen design India",
+  ],
+  alternates: { canonical: "https://modulas.in/modular-solutions/kitchens" },
+  openGraph: {
+    title:       "Modular Kitchens — Straight, L-Shape, U-Shape, Island | Modulas",
+    description: "Custom modular kitchens for Indian homes. 6+ layouts, 120+ finishes, German hardware, 10-year warranty.",
+    url:         "https://modulas.in/modular-solutions/kitchens",
+  },
 };
 
 const LAYOUTS = [

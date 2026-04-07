@@ -193,16 +193,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const article = await fetchArticle(slug);
   if (!article) return { title: "Article Not Found" };
+  const canonicalUrl = `https://modulas.in/blog/${article.slug}`;
   return {
     title:       `${article.title} — Modulas Journal`,
     description: article.excerpt,
+    keywords:    article.tags,
+    alternates:  { canonical: canonicalUrl },
     openGraph: {
+      title:         article.title,
+      description:   article.excerpt,
+      type:          "article",
+      publishedTime: article.publishedAt,
+      authors:       [article.author.fullName],
+      tags:          article.tags,
+      images:        article.coverImage ? [{ url: article.coverImage, width: 1200, height: 630, alt: article.title }] : [],
+      url:           canonicalUrl,
+    },
+    twitter: {
+      card:        "summary_large_image",
       title:       article.title,
       description: article.excerpt,
-      type:        "article",
-      publishedTime: article.publishedAt,
-      authors:     [article.author.fullName],
-      images:      article.coverImage ? [{ url: article.coverImage, width: 1200, height: 630 }] : [],
+      images:      article.coverImage ? [article.coverImage] : [],
     },
   };
 }
@@ -225,6 +236,7 @@ export default async function ArticlePage({ params }: Props) {
   }).format(new Date(article.publishedAt));
 
   /* JSON-LD */
+  const articleUrl = `https://modulas.in/blog/${article.slug}`;
   const jsonLd = {
     "@context":        "https://schema.org",
     "@type":           "Article",
@@ -232,16 +244,26 @@ export default async function ArticlePage({ params }: Props) {
     description:       article.excerpt,
     image:             article.coverImage,
     datePublished:     article.publishedAt,
+    dateModified:      article.publishedAt,
+    mainEntityOfPage:  { "@type": "WebPage", "@id": articleUrl },
+    url:               articleUrl,
+    keywords:          article.tags?.join(", "),
+    articleSection:    article.category,
+    inLanguage:        "en-IN",
     author: {
       "@type": "Person",
       name:    article.author.fullName,
+      jobTitle: article.author.role,
     },
     publisher: {
       "@type": "Organization",
       name:    "Modulas",
+      url:     "https://modulas.in",
       logo: {
         "@type": "ImageObject",
         url:     "https://modulas.in/logo-full-dark.png",
+        width:   200,
+        height:  60,
       },
     },
   };

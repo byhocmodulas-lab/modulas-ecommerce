@@ -4,6 +4,53 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "How It Works — Free Home Visit to Installation | Modulas",
   description: "From first enquiry to installation in 4 simple steps. Book a free home visit, get a 3D design, confirm your order, and sit back while we install it.",
+  keywords: [
+    "how to order custom furniture India",
+    "furniture design process India",
+    "modular kitchen installation process",
+    "bespoke furniture process",
+    "modulas how it works",
+  ],
+  alternates: { canonical: "https://modulas.in/how-it-works" },
+};
+
+const HOW_IT_WORKS_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  name: "How to Order Bespoke Modular Furniture from Modulas",
+  description: "Order custom modular furniture in 4 steps: free home visit, 3D design, review and confirm, then installation.",
+  totalTime: "P6W",
+  estimatedCost: { "@type": "MonetaryAmount", currency: "INR", minValue: "50000" },
+  step: [
+    {
+      "@type": "HowToStep",
+      position: 1,
+      name: "Book a free home visit",
+      text: "Fill in the form or call us. We send a designer to your home at a time that suits you — no charge, no obligation.",
+      url: "https://modulas.in/how-it-works#step-1",
+    },
+    {
+      "@type": "HowToStep",
+      position: 2,
+      name: "We design your space in 3D",
+      text: "Your designer takes precise measurements and creates a full 3D render of your space within 48 hours.",
+      url: "https://modulas.in/how-it-works#step-2",
+    },
+    {
+      "@type": "HowToStep",
+      position: 3,
+      name: "Review, revise, and confirm",
+      text: "Review the 3D design together. Request as many revisions as needed, then confirm your order with a 50% deposit.",
+      url: "https://modulas.in/how-it-works#step-3",
+    },
+    {
+      "@type": "HowToStep",
+      position: 4,
+      name: "White-glove installation",
+      text: "Our trained installation team arrives on schedule and completes the installation to specification — typically in one day.",
+      url: "https://modulas.in/how-it-works#step-4",
+    },
+  ],
 };
 
 const STEPS = [
@@ -53,6 +100,8 @@ const FAQS = [
 export default function HowItWorksPage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(HOW_IT_WORKS_SCHEMA) }} />
+
       {/* ── Hero ──────────────────────────────────────────────── */}
       <section className="bg-cream py-20 px-6 lg:px-12">
         <div className="mx-auto max-w-[1440px]">

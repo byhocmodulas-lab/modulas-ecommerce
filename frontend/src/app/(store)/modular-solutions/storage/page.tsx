@@ -3,7 +3,21 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Modular Storage — TV Units, Shoe Racks, Crockery Cabinets | Modulas",
-  description: "Custom modular storage for every room — TV & media units, crockery cabinets, shoe racks, entry units, study shelving, utility storage. Factory-direct.",
+  description: "Custom modular storage solutions for every room — TV & media units, crockery cabinets, shoe racks, entry units, study shelving, utility storage. Factory-direct pricing. Free home visit.",
+  keywords: [
+    "modular storage India",
+    "TV unit design India",
+    "modular shoe rack India",
+    "crockery cabinet design",
+    "custom storage furniture India",
+    "modular shelving India",
+  ],
+  alternates: { canonical: "https://modulas.in/modular-solutions/storage" },
+  openGraph: {
+    title:       "Modular Storage — TV Units, Shoe Racks, Crockery Cabinets | Modulas",
+    description: "Custom modular storage for every room. Factory-direct pricing, free home visit and 3D design.",
+    url:         "https://modulas.in/modular-solutions/storage",
+  },
 };
 
 const STORAGE_TYPES = [

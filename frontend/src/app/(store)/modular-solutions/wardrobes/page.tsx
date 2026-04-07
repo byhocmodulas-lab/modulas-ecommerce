@@ -3,7 +3,22 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Modular Wardrobes — Sliding, Hinged, Walk-in | Modulas",
-  description: "Custom modular wardrobes for every bedroom. Sliding doors, hinged shutters, walk-in closets, kids wardrobes. 30+ door styles, 50+ interior modules. Book free design visit.",
+  description: "Custom modular wardrobes for every bedroom. Sliding doors, hinged shutters, walk-in closets, kids wardrobes. 30+ door styles, 50+ interior modules, 10-year warranty. Book a free home visit.",
+  keywords: [
+    "modular wardrobe India",
+    "modular wardrobe Gurgaon",
+    "sliding door wardrobe India",
+    "walk in closet India",
+    "custom wardrobe design India",
+    "modular almirah India",
+    "bedroom wardrobe design India",
+  ],
+  alternates: { canonical: "https://modulas.in/modular-solutions/wardrobes" },
+  openGraph: {
+    title:       "Modular Wardrobes — Sliding, Hinged, Walk-in | Modulas",
+    description: "Custom modular wardrobes for every bedroom. 30+ door styles, 50+ interior modules, 10-year warranty.",
+    url:         "https://modulas.in/modular-solutions/wardrobes",
+  },
 };
 
 const TYPES = [

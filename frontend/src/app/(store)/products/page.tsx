@@ -33,9 +33,26 @@ interface ProductsPageProps {
 export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
   const params = await searchParams;
   const cat = params.category ? CATEGORY_MAP[params.category] : null;
+  const baseUrl = "https://modulas.in/products";
+  const canonical = params.category ? `${baseUrl}?category=${params.category}` : baseUrl;
   return {
-    title:       cat ? cat.seoTitle       : "Shop Furniture — Modulas",
-    description: cat ? cat.seoDescription : "Explore the full Modulas collection — luxury bespoke furniture for living spaces, bedrooms, kitchens, and offices. Fully customised, crafted in India.",
+    title:       cat ? cat.seoTitle       : "Shop Luxury Furniture — Modulas Collection",
+    description: cat ? cat.seoDescription : "Explore 200+ bespoke furniture pieces — modular sofas, dining tables, wardrobes, and storage — fully customised and crafted in India. Browse the full Modulas collection.",
+    keywords: cat ? undefined : [
+      "luxury furniture India",
+      "bespoke furniture online",
+      "custom furniture Gurgaon",
+      "modular furniture India",
+      "buy luxury sofa India",
+      "designer furniture India",
+      "handcrafted furniture India",
+    ],
+    alternates: { canonical },
+    openGraph: {
+      title:       cat ? cat.seoTitle : "Shop Luxury Furniture — Modulas Collection",
+      description: cat ? cat.seoDescription : "200+ bespoke furniture pieces, crafted in India. Fully customisable.",
+      url:         canonical,
+    },
   };
 }
 

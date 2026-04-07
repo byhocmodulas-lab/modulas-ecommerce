@@ -7,7 +7,21 @@ export const metadata: Metadata = {
   title: "Modular Solutions — Kitchens, Wardrobes & Storage | Modulas",
   description:
     "Design your perfect modular kitchen, wardrobe, or storage system with Modulas. " +
-    "Engineered for Indian homes. Factory-direct pricing, 10-year warranty.",
+    "Engineered for Indian homes. Factory-direct pricing, 10-year warranty, free 3D design.",
+  keywords: [
+    "modular furniture India",
+    "modular kitchen India",
+    "modular wardrobe India",
+    "modular storage solutions",
+    "custom modular furniture Gurgaon",
+    "modular solutions India",
+  ],
+  alternates: { canonical: "https://modulas.in/modular-solutions" },
+  openGraph: {
+    title:       "Modular Solutions — Kitchens, Wardrobes & Storage | Modulas",
+    description: "Design your perfect modular kitchen, wardrobe, or storage. Engineered for Indian homes, 10-year warranty.",
+    url:         "https://modulas.in/modular-solutions",
+  },
 };
 
 /* ─────────────────────────────────────────────────────────────────────────────
