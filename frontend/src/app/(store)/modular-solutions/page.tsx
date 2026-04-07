@@ -215,9 +215,43 @@ const FEATURED_PRODUCTS: Product[] = [
    PAGE
 ───────────────────────────────────────────────────────────────────────────── */
 
+const MODULAR_SERVICE_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  name: "Modular Furniture Solutions",
+  provider: {
+    "@type": "LocalBusiness",
+    name: "Modulas",
+    url: "https://modulas.in",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Gurgaon",
+      addressRegion: "Haryana",
+      addressCountry: "IN",
+    },
+  },
+  serviceType: "Custom Modular Furniture",
+  description:
+    "Factory-direct modular kitchens, wardrobes, and storage systems designed for Indian homes. Free 3D design, 10-year structural warranty, professional installation.",
+  areaServed: { "@type": "Country", name: "India" },
+  hasOfferCatalog: {
+    "@type": "OfferCatalog",
+    name: "Modular Solutions",
+    itemListElement: [
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Modular Kitchens", url: "https://modulas.in/modular-solutions/kitchens" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Modular Wardrobes", url: "https://modulas.in/modular-solutions/wardrobes" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Modular Storage", url: "https://modulas.in/modular-solutions/storage" } },
+    ],
+  },
+};
+
 export default function ModularSolutionsPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(MODULAR_SERVICE_SCHEMA) }}
+      />
 
       {/* ①  HERO ──────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-charcoal-950 min-h-[88vh] flex flex-col justify-end">

@@ -2,9 +2,24 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Bespoke Orders — Modulas",
+  title: "Bespoke Custom Furniture — Commission a Piece | Modulas",
   description:
     "Commission a piece made entirely to your specification — dimensions, materials, finish, and configuration. Every Modulas bespoke order is designed for your space and crafted to your exact brief.",
+  keywords: [
+    "bespoke furniture India",
+    "custom furniture commission India",
+    "custom made furniture Gurgaon",
+    "bespoke sofa India",
+    "made to measure furniture India",
+    "luxury custom furniture India",
+    "handcrafted bespoke furniture Delhi NCR",
+  ],
+  alternates: { canonical: "https://modulas.in/bespoke" },
+  openGraph: {
+    title: "Bespoke Custom Furniture — Commission a Piece | Modulas",
+    description: "Commission furniture made entirely to your specification. Designed for your space, crafted to your exact brief.",
+    url: "https://modulas.in/bespoke",
+  },
 };
 
 const PROCESS = [

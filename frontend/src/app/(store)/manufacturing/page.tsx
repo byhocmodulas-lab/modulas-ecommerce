@@ -2,9 +2,22 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Manufacturing — How We Build Your Furniture | Modulas",
+  title: "How We Make Our Furniture — Manufacturing & Craftsmanship | Modulas",
   description:
     "A behind-the-scenes look at how Modulas furniture is made — from sustainably sourced raw materials to hand-finished pieces delivered to your door.",
+  keywords: [
+    "furniture manufacturing India",
+    "handcrafted furniture process India",
+    "how modular furniture is made",
+    "furniture craftsmanship India",
+    "quality furniture production India",
+  ],
+  alternates: { canonical: "https://modulas.in/manufacturing" },
+  openGraph: {
+    title: "How We Make Our Furniture — Craftsmanship | Modulas",
+    description: "From sustainably sourced timber to hand-finished pieces — a look at how every Modulas piece is made.",
+    url: "https://modulas.in/manufacturing",
+  },
 };
 
 const STAGES = [

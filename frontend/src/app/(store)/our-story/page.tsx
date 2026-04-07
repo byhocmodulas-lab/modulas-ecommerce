@@ -2,9 +2,22 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Our Story — Modulas",
+  title: "Our Story — Modulas | Luxury Furniture Studio, Gurgaon",
   description:
-    "Founded on a belief that furniture should last a lifetime. Learn how Modulas began and the values that guide every piece we make.",
+    "Founded on a belief that furniture should last a lifetime. Learn how Modulas began in Gurgaon and the values that guide every piece we make.",
+  keywords: [
+    "Modulas furniture brand story",
+    "luxury furniture studio Gurgaon",
+    "about Modulas furniture",
+    "Indian furniture brand",
+    "bespoke furniture company India",
+  ],
+  alternates: { canonical: "https://modulas.in/our-story" },
+  openGraph: {
+    title: "Our Story — Modulas | Luxury Furniture Studio, Gurgaon",
+    description: "Founded on a belief that furniture should last a lifetime — learn how Modulas began and the values that guide us.",
+    url: "https://modulas.in/our-story",
+  },
 };
 
 const MILESTONES = [

@@ -4,6 +4,20 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "For Architects & Designers — Trade Programme | Modulas",
   description: "Modulas trade programme for architects, interior designers, and developers. Tiered trade discounts up to 40%, dedicated account management, technical drawings, and material library access.",
+  keywords: [
+    "architecture trade programme furniture India",
+    "interior designer trade discount India",
+    "furniture for architects India",
+    "trade pricing interior design India",
+    "BIM CAD furniture files India",
+    "luxury furniture trade India",
+  ],
+  alternates: { canonical: "https://modulas.in/for-designers" },
+  openGraph: {
+    title: "For Architects & Designers — Trade Programme | Modulas",
+    description: "Tiered trade discounts up to 40%, dedicated account management, technical drawings, and material library for design professionals.",
+    url: "https://modulas.in/for-designers",
+  },
 };
 
 const TIERS = [

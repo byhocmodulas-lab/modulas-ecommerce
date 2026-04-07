@@ -83,12 +83,38 @@ interface WardrobesPageProps {
   searchParams: Promise<{ type?: string }>;
 }
 
+const WARDROBES_SERVICE_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  name: "Modular Wardrobe Design & Installation",
+  provider: {
+    "@type": "LocalBusiness",
+    name: "Modulas",
+    url: "https://modulas.in",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Gurgaon",
+      addressRegion: "Haryana",
+      addressCountry: "IN",
+    },
+  },
+  serviceType: "Modular Wardrobe",
+  description:
+    "Custom modular wardrobes — sliding, hinged, walk-in, kids, and loft configurations. 30+ door styles, 50+ interior modules, fully configurable.",
+  areaServed: { "@type": "Country", name: "India" },
+  offers: { "@type": "Offer", availability: "https://schema.org/InStock", priceCurrency: "INR" },
+};
+
 export default async function WardrobesPage({ searchParams }: WardrobesPageProps) {
   const { type: activeType } = await searchParams;
   const filtered = activeType ? TYPES.filter((t) => t.slug === activeType) : TYPES;
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(WARDROBES_SERVICE_SCHEMA) }}
+      />
       {/* ── Hero ──────────────────────────────────────────────── */}
       <div className="relative h-[55vh] min-h-[380px] overflow-hidden bg-charcoal-950">
         <img

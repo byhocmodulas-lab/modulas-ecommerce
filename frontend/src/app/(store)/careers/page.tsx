@@ -2,9 +2,23 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Careers — Modulas",
+  title: "Careers at Modulas — Design, Craft & Technology Jobs",
   description:
-    "Join the team building India's most considered luxury furniture studio. Open roles in design, craft, technology, and more.",
+    "Join the team building India's most considered luxury furniture studio. Open roles in design, craft, technology, and more. Based in Gurgaon.",
+  keywords: [
+    "furniture design jobs India",
+    "interior design jobs Gurgaon",
+    "furniture company jobs Delhi NCR",
+    "product design jobs India",
+    "craft jobs India",
+    "luxury furniture careers",
+  ],
+  alternates: { canonical: "https://modulas.in/careers" },
+  openGraph: {
+    title: "Careers at Modulas — Design, Craft & Technology Jobs",
+    description: "Join India's most considered luxury furniture studio. Roles in design, craft, and technology — based in Gurgaon.",
+    url: "https://modulas.in/careers",
+  },
 };
 
 const OPEN_ROLES = [

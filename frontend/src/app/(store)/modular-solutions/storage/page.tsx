@@ -69,12 +69,38 @@ interface StoragePageProps {
   searchParams: Promise<{ type?: string }>;
 }
 
+const STORAGE_SERVICE_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  name: "Modular Storage Solutions — TV Units, Shoe Racks, Crockery Cabinets",
+  provider: {
+    "@type": "LocalBusiness",
+    name: "Modulas",
+    url: "https://modulas.in",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Gurgaon",
+      addressRegion: "Haryana",
+      addressCountry: "IN",
+    },
+  },
+  serviceType: "Modular Storage",
+  description:
+    "Custom modular storage for every room — TV & media units, crockery cabinets, shoe racks, foyer units, study shelving, and utility storage. Factory-direct pricing.",
+  areaServed: { "@type": "Country", name: "India" },
+  offers: { "@type": "Offer", availability: "https://schema.org/InStock", priceCurrency: "INR" },
+};
+
 export default async function StoragePage({ searchParams }: StoragePageProps) {
   const { type: activeType } = await searchParams;
   const filtered = activeType ? STORAGE_TYPES.filter((t) => t.slug === activeType) : STORAGE_TYPES;
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(STORAGE_SERVICE_SCHEMA) }}
+      />
       {/* ── Hero ──────────────────────────────────────────────── */}
       <div className="relative h-[50vh] min-h-[340px] overflow-hidden bg-charcoal-950">
         <img

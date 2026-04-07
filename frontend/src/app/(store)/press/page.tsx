@@ -2,9 +2,21 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Press — Modulas",
+  title: "Press & Media — Modulas | Luxury Furniture Brand India",
   description:
     "Media coverage, press enquiries, and downloadable assets for Modulas — India's contemporary luxury furniture studio redefining bespoke interiors.",
+  keywords: [
+    "Modulas press coverage",
+    "luxury furniture brand India press",
+    "furniture design media India",
+    "interior design press India",
+  ],
+  alternates: { canonical: "https://modulas.in/press" },
+  openGraph: {
+    title: "Press & Media — Modulas | Luxury Furniture Brand India",
+    description: "Media coverage, press enquiries, and assets for Modulas — India's luxury furniture studio.",
+    url: "https://modulas.in/press",
+  },
 };
 
 const FEATURED_COVERAGE = [

@@ -2,9 +2,23 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Sustainability — Modulas",
+  title: "Sustainability — Responsible Furniture Making | Modulas",
   description:
     "Our commitment to responsible making — from FSC-certified timber and natural dyes to carbon-neutral manufacturing and zero-waste packaging.",
+  keywords: [
+    "sustainable furniture India",
+    "eco-friendly furniture brand India",
+    "FSC certified furniture India",
+    "sustainable luxury furniture",
+    "zero waste furniture manufacturing India",
+    "responsible furniture making",
+  ],
+  alternates: { canonical: "https://modulas.in/sustainability" },
+  openGraph: {
+    title: "Sustainability — Responsible Furniture Making | Modulas",
+    description: "FSC-certified timber, natural dyes, carbon-neutral manufacturing, and zero-waste packaging — furniture made responsibly.",
+    url: "https://modulas.in/sustainability",
+  },
 };
 
 const PILLARS = [

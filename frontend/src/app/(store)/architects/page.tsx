@@ -2,9 +2,23 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Trade Programme — Modulas",
+  title: "Trade Programme for Architects & Designers — Modulas",
   description:
-    "Modulas Trade: exclusive pricing, dedicated account management, and a sample library for architects, interior designers, and specifiers.",
+    "Modulas Trade: exclusive pricing up to 40%, dedicated account management, and a sample library for architects, interior designers, and specifiers across India.",
+  keywords: [
+    "furniture trade programme India",
+    "architect trade discount furniture",
+    "interior designer furniture discount India",
+    "trade pricing luxury furniture",
+    "furniture specifier programme India",
+    "Modulas trade architect",
+  ],
+  alternates: { canonical: "https://modulas.in/architects" },
+  openGraph: {
+    title: "Trade Programme for Architects & Designers — Modulas",
+    description: "Exclusive trade pricing up to 40%, dedicated account management, and sample library for architects and designers.",
+    url: "https://modulas.in/architects",
+  },
 };
 
 const BENEFITS = [

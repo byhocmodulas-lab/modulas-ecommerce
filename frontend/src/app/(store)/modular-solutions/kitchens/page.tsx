@@ -91,11 +91,37 @@ interface KitchensPageProps {
   searchParams: Promise<{ layout?: string; style?: string }>;
 }
 
+const KITCHENS_SERVICE_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  name: "Modular Kitchen Design & Installation",
+  provider: {
+    "@type": "LocalBusiness",
+    name: "Modulas",
+    url: "https://modulas.in",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Gurgaon",
+      addressRegion: "Haryana",
+      addressCountry: "IN",
+    },
+  },
+  serviceType: "Modular Kitchen",
+  description:
+    "Custom modular kitchens for Indian homes — straight, L-shape, U-shape, parallel, and island configurations. 120+ finishes, German hardware, 10-year structural warranty.",
+  areaServed: { "@type": "Country", name: "India" },
+  offers: { "@type": "Offer", availability: "https://schema.org/InStock", priceCurrency: "INR" },
+};
+
 export default async function KitchensPage({ searchParams }: KitchensPageProps) {
   const { layout: activeLayout } = await searchParams;
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(KITCHENS_SERVICE_SCHEMA) }}
+      />
       {/* ── Hero ──────────────────────────────────────────────── */}
       <div className="relative h-[55vh] min-h-[380px] overflow-hidden bg-charcoal-950">
         <img

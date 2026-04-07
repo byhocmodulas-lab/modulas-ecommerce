@@ -2,9 +2,22 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Delivery & Lead Times — Modulas",
+  title: "Delivery & Installation — Lead Times & White-Glove Service | Modulas",
   description:
-    "White Glove delivery across the UK, with international shipping available. Lead times by product type and delivery FAQs.",
+    "White-glove furniture delivery and professional installation across Delhi-NCR and India. Lead times by product type, and delivery FAQs.",
+  keywords: [
+    "furniture delivery India",
+    "white glove furniture delivery Delhi",
+    "furniture installation Gurgaon",
+    "furniture lead times India",
+    "modular furniture delivery India",
+  ],
+  alternates: { canonical: "https://modulas.in/delivery" },
+  openGraph: {
+    title: "Delivery & Installation — White-Glove Service | Modulas",
+    description: "White-glove furniture delivery and professional installation across Delhi-NCR and India.",
+    url: "https://modulas.in/delivery",
+  },
 };
 
 const DELIVERY_OPTIONS = [
