@@ -76,7 +76,10 @@ export const authApi = {
     request<unknown>("/auth/me", { token }),
 
   listUsers: (token: string, role?: string) =>
-    request<AuthUser[]>(`/auth/users${role ? `?role=${role}` : ""}`, { token }),
+    request<{ data: AuthUser[]; meta: { total: number; page: number; limit: number; totalPages: number } }>(
+      `/auth/users${role ? `?role=${role}` : ""}`,
+      { token },
+    ).then((r) => r.data),
 
   updateRole: (token: string, userId: string, role: string) =>
     request<unknown>(`/auth/users/${userId}/role`, {
