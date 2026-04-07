@@ -36,15 +36,15 @@ export class User {
 
   // ── Auth credentials (dedicated columns — not JSONB) ──────────────
 
-  @Column({ name: 'password_hash', nullable: true, select: false })
+  @Column({ name: 'password_hash', type: 'text', nullable: true, select: false })
   passwordHash: string | null;
 
   /** SHA-256 hex of the current refresh token — cleared on logout */
-  @Column({ name: 'refresh_token_hash', nullable: true, select: false })
+  @Column({ name: 'refresh_token_hash', type: 'text', nullable: true, select: false })
   refreshTokenHash: string | null;
 
   /** SHA-256 hex of the password-reset token — cleared after use */
-  @Column({ name: 'password_reset_hash', nullable: true, select: false })
+  @Column({ name: 'password_reset_hash', type: 'text', nullable: true, select: false })
   passwordResetHash: string | null;
 
   @Column({ name: 'password_reset_expiry', type: 'timestamptz', nullable: true, select: false })
