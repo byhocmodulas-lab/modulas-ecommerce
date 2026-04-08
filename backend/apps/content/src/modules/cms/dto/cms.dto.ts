@@ -23,6 +23,10 @@ export class CreateCmsPageDto {
   pageType: CmsPageType;
 
   @IsOptional()
+  @IsEnum(['draft', 'published', 'archived'])
+  status?: CmsPageStatus;
+
+  @IsOptional()
   @IsObject()
   content?: Record<string, unknown>;
 

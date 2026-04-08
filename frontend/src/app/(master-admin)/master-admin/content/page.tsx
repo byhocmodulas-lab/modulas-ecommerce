@@ -1115,7 +1115,8 @@ function HomepageTab({ token }: { token: string }) {
         brandStory: story, configurator: config, newsletter,
       };
       if (!pageSlug) {
-        await cmsApi.createPage(token, { slug: "homepage", title: "Homepage", pageType: "homepage", status: "published", content });
+        await cmsApi.createPage(token, { slug: "homepage", title: "Homepage", pageType: "homepage", content });
+        await cmsApi.updatePage(token, "homepage", { status: "published" });
         setPageSlug("homepage");
       } else {
         await cmsApi.updatePage(token, "homepage", { content });
