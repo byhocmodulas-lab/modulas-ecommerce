@@ -26,7 +26,19 @@ export default function MobileClerkAuth({ onClose }: { onClose?: () => void }) {
   const authed    = useAuthStore((s) => s.isAuthenticated());
   const clearAuth = useAuthStore((s) => s.clearAuth);
 
-  if (!mounted || !authed || !user) return null;
+  if (!mounted) return null;
+
+  if (!authed || !user) {
+    return (
+      <Link
+        href="/login"
+        onClick={onClose}
+        className="block w-full rounded-full bg-gold py-2.5 text-center font-sans text-[12px] tracking-[0.1em] uppercase text-charcoal-950 hover:bg-gold-400 transition-colors"
+      >
+        Sign In
+      </Link>
+    );
+  }
 
   const dashboard = ROLE_DASHBOARD[user.role] ?? "/account";
 

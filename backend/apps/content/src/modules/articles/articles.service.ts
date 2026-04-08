@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, Optional } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ElasticsearchService } from "@nestjs/elasticsearch";
@@ -13,7 +13,7 @@ export class ArticlesService {
   constructor(
     @InjectRepository(Article)
     private readonly articleRepo: Repository<Article>,
-    private readonly elasticsearchService: ElasticsearchService,
+    @Optional() private readonly elasticsearchService: ElasticsearchService,
   ) {}
 
   async create(dto: CreateArticleDto, authorId: string): Promise<Article> {
@@ -81,21 +81,23 @@ export class ArticlesService {
     const article = await this.articleRepo.findOneBy({ id });
     if (!article) throw new NotFoundException(`Article ${id} not found`);
 
-    // Index in Elasticsearch when published
-    if (status === "published") {
-      await (this.elasticsearchService as any).index({
-        index: "articles",
-        id,
-        document: {
-          title: article.title,
-          content: article.content,
-          excerpt: article.excerpt,
-          category: article.category,
-          tags: article.tags,
-          publishedAt: article.publishedAt,
-          locale: article.locale,
-        },
-      });
+    // Index in Elasticsearch when published (optional — skipped if not configured)
+    if (status === "published" && this.elasticsearchService) {
+      try {
+        await (this.elasticsearchService as any).index({
+          index: "articles",
+          id,
+          document: {
+            title: article.title,
+            content: article.content,
+            excerpt: article.excerpt,
+            category: article.category,
+            tags: article.tags,
+            publishedAt: article.publishedAt,
+            locale: article.locale,
+          },
+        });
+      } catch { /* Elasticsearch unavailable — continue without indexing */ }
     }
 
     return article;

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useAuthStore } from "@/lib/stores/auth-store";
 
+
 /** Portal dashboard link per role */
 const ROLE_DASHBOARD: Record<string, string> = {
   master_admin: "/master-admin",
@@ -51,7 +52,19 @@ export function UserNav() {
   }, [open]);
 
   // Don't render on SSR pass — auth state is client-only (Zustand persist)
-  if (!mounted || !authed || !user) return null;
+  if (!mounted) return null;
+
+  // Signed out — show Sign In link
+  if (!authed || !user) {
+    return (
+      <Link
+        href="/login"
+        className="hidden sm:inline-flex items-center h-9 px-4 font-sans text-[11px] tracking-[0.12em] uppercase text-charcoal/60 dark:text-cream/60 hover:text-charcoal dark:hover:text-cream border border-black/10 dark:border-white/10 hover:border-black/25 dark:hover:border-white/25 transition-colors"
+      >
+        Sign In
+      </Link>
+    );
+  }
 
   const dashboard = ROLE_DASHBOARD[user.role] ?? "/account";
   const label     = ROLE_LABEL[user.role]     ?? "My Account";

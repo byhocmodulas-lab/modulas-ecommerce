@@ -37,7 +37,7 @@ interface ProductWithDetails extends Product {
 async function fetchProduct(slug: string): Promise<ProductWithDetails | null> {
   try {
     const res = await fetchWithTimeout(
-      `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1"}/products/slug/${slug}`,
+      `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1"}/catalog/products/slug/${slug}`,
       { next: { revalidate: 60, tags: [`product-${slug}`] } },
     );
     if (res.status === 404) return null;
