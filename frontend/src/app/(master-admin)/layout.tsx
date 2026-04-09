@@ -9,6 +9,7 @@ import {
   PhoneCall, Share2, FileBarChart2, TrendingUp, Target,
   DollarSign, Receipt, PackageCheck,
   Zap, Globe, Search, Sparkles, Palette, Eye,
+  Package, FolderTree, ImageIcon,
 } from "lucide-react";
 import { useAccessToken, useAuthStore } from "@/lib/stores/auth-store";
 import { authApi } from "@/lib/api/client";
@@ -67,6 +68,13 @@ const NAV_SECTIONS = [
       { href: "/master-admin/social",           label: "Social Media Hub",  icon: Share2 },
       { href: "/master-admin/content-studio",   label: "Content Studio",    icon: Sparkles },
       { href: "/master-admin/reports",          label: "Reports & Targets", icon: FileBarChart2 },
+    ],
+  },
+  {
+    label: "Catalog",
+    items: [
+      { href: "/master-admin/catalog",             label: "Products",          icon: Package },
+      { href: "/master-admin/catalog/categories",  label: "Categories",        icon: FolderTree },
     ],
   },
   {
