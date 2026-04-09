@@ -13,6 +13,7 @@ import {
   cmsApi, articlesApi,
   type CmsPage, type CmsBanner, type CmsMediaItem, type CmsArticle, type CmsSummary,
 } from "@/lib/api/client";
+import { PublishButton } from "@/components/admin/publish-button";
 
 /* ─────────────────────────────────────────────────────────────
  *  Types
@@ -236,7 +237,8 @@ function PagesTab({ token, openForm, onFormOpen, onFormClose }: {
   const load = useCallback(async () => {
     try {
       setLoading(true); setError(null);
-      setPages(await cmsApi.listPages(token));
+      const pagesResult = await cmsApi.listPages(token);
+      setPages(Array.isArray(pagesResult) ? pagesResult : []);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to load pages");
     } finally { setLoading(false); }
@@ -432,7 +434,8 @@ function BannersTab({ token, openForm, onFormOpen, onFormClose }: {
   const load = useCallback(async () => {
     try {
       setLoading(true); setError(null);
-      setBanners(await cmsApi.listBanners(token));
+      const bannersResult = await cmsApi.listBanners(token);
+      setBanners(Array.isArray(bannersResult) ? bannersResult : []);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to load banners");
     } finally { setLoading(false); }
@@ -1533,10 +1536,13 @@ export default function ContentPage() {
           <h1 className="font-serif text-3xl text-charcoal">Website Content</h1>
           <p className="font-sans text-sm text-charcoal/35 mt-0.5">Manage all public-facing content</p>
         </div>
-        <Link href="/" target="_blank"
-          className="hidden sm:flex items-center gap-1.5 rounded-full border border-black/10 px-4 py-2 font-sans text-[11px] text-charcoal/50 hover:border-black/20 hover:text-charcoal transition-colors">
-          <ExternalLink className="h-3.5 w-3.5" /> View Website
-        </Link>
+        <div className="flex items-center gap-2">
+          <PublishButton />
+          <Link href="/" target="_blank"
+            className="hidden sm:flex items-center gap-1.5 rounded-full border border-black/10 px-4 py-2 font-sans text-[11px] text-charcoal/50 hover:border-black/20 hover:text-charcoal transition-colors">
+            <ExternalLink className="h-3.5 w-3.5" /> View Website
+          </Link>
+        </div>
       </div>
 
       {/* Tab nav */}

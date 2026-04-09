@@ -14,6 +14,7 @@ import {
 import { useAccessToken, useAuthStore } from "@/lib/stores/auth-store";
 import { authApi } from "@/lib/api/client";
 import { refresh } from "@/lib/api/auth";
+import { PublishButton } from "@/components/admin/publish-button";
 
 /** Silently refreshes the access token every 14 minutes so the session never expires */
 function TokenRefresher() {
@@ -163,7 +164,8 @@ export default function MasterAdminLayout({ children }: { children: React.ReactN
   useEffect(() => {
     if (!token) return;
     authApi.listUsers(token)
-      .then(users => {
+      .then(result => {
+        const users = Array.isArray(result) ? result : [];
         const count = users.filter(u => !u.isVerified && u.role !== "customer").length;
         setPendingCount(count);
       })
@@ -187,9 +189,12 @@ export default function MasterAdminLayout({ children }: { children: React.ReactN
               <span className="font-sans text-sm text-charcoal">Master Admin</span>
             </div>
           </div>
-          <span className="rounded-full bg-red-50 border border-red-200 px-3 py-0.5 font-sans text-[10px] tracking-[0.1em] uppercase text-red-600 font-medium">
-            Restricted Access
-          </span>
+          <div className="flex items-center gap-3">
+            <PublishButton variant="compact" label="Publish" />
+            <span className="rounded-full bg-red-50 border border-red-200 px-3 py-0.5 font-sans text-[10px] tracking-[0.1em] uppercase text-red-600 font-medium">
+              Restricted Access
+            </span>
+          </div>
         </div>
       </div>
 

@@ -121,11 +121,20 @@ export default function ThemeEditorPage() {
     if (!token) return;
     setSaving(true);
     try {
-      await fetch(`${API}/cms/pages`, {
-        method: "POST",
+      const payload = { title: "Theme Settings", content: settings, status: "published", pageType: "static" };
+      // Try PATCH first (page may already exist); fall back to POST on 404
+      const patchRes = await fetch(`${API}/cms/pages/theme-settings`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ key: "theme-settings", title: "Theme Settings", content: settings, status: "published" }),
+        body: JSON.stringify(payload),
       });
+      if (patchRes.status === 404) {
+        await fetch(`${API}/cms/pages`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ slug: "theme-settings", ...payload }),
+        });
+      }
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     } catch { /* ignore */ } finally { setSaving(false); }

@@ -53,7 +53,9 @@ export default function UsersPage() {
     if (!token) return;
     setLoading(true); setError(null);
     try {
-      setUsers(await authApi.listUsers(token));
+      const result = await authApi.listUsers(token);
+      // Defensive: listUsers unwraps r.data, but guard against unexpected shapes
+      setUsers(Array.isArray(result) ? result : []);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to load users");
     } finally { setLoading(false); }
@@ -108,7 +110,8 @@ export default function UsersPage() {
 
   const getStatus = (u: AuthUser) => u.isVerified ? "active" : "pending";
 
-  const filtered = users.filter((u) => {
+  const safeUsers = Array.isArray(users) ? users : [];
+  const filtered = safeUsers.filter((u) => {
     const displayRole = u.role === "master_admin" ? "admin" : u.role;
     const matchRole   = roleFilter === "all" || displayRole === roleFilter || u.role === roleFilter;
     const matchStatus = statusFilter === "all" || getStatus(u) === statusFilter;
