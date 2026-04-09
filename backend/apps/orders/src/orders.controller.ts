@@ -1,6 +1,6 @@
 import {
   Controller, Get, Post, Patch, Delete, Body, Param,
-  Query, UseGuards, HttpCode, HttpStatus, ParseUUIDPipe, Res, IsString,
+  Query, UseGuards, HttpCode, HttpStatus, ParseUUIDPipe, Res,
 } from '@nestjs/common';
 import { IsNumber, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
