@@ -15,7 +15,8 @@ import { Role } from '../../../../../libs/common/src/enums/role.enum';
 
 @ApiTags('products')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Controller('catalog/products')
+// Serve on both /products and /catalog/products so all frontend calls resolve
+@Controller(['products', 'catalog/products'])
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
@@ -26,6 +27,13 @@ export class ProductsController {
   @ApiOperation({ summary: 'Search / list products' })
   search(@Query() dto: ProductSearchDto) {
     return this.productsService.search(dto);
+  }
+
+  @Public()
+  @Get('slug/:slug')
+  @ApiOperation({ summary: 'Get product by slug' })
+  findBySlug(@Param('slug') slug: string) {
+    return this.productsService.findBySlug(slug);
   }
 
   @Public()
