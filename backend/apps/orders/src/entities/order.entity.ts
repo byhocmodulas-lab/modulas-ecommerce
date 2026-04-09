@@ -31,11 +31,14 @@ export class Order {
   @Column({ name: 'total_amount', type: 'numeric', precision: 10, scale: 2 })
   totalAmount: number;
 
-  @Column({ default: 'GBP', length: 3 })
+  @Column({ default: 'INR', length: 3 })
   currency: string;
 
   @Column({ name: 'stripe_payment_intent_id', nullable: true })
   stripePaymentIntentId: string;
+
+  @Column({ name: 'razorpay_order_id', nullable: true })
+  razorpayOrderId: string;
 
   @Column({ name: 'shipping_address', type: 'jsonb' })
   shippingAddress: Record<string, unknown>;

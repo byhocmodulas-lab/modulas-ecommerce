@@ -24,9 +24,16 @@ export class Payment {
   @Column({ name: 'user_id' })
   userId: string;
 
-  @Index({ unique: true })
-  @Column({ name: 'stripe_payment_intent_id' })
+  @Index({ unique: true, sparse: true })
+  @Column({ name: 'stripe_payment_intent_id', nullable: true })
   stripePaymentIntentId: string;
+
+  @Index({ unique: true, sparse: true })
+  @Column({ name: 'razorpay_payment_id', nullable: true })
+  razorpayPaymentId: string;
+
+  @Column({ name: 'razorpay_order_id', nullable: true })
+  razorpayOrderId: string;
 
   @Column({ type: 'numeric', precision: 12, scale: 2 })
   amount: number;

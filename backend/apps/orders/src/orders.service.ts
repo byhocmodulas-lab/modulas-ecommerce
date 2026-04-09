@@ -53,6 +53,21 @@ export class OrdersService {
     return this.cartRepo.save(cart);
   }
 
+  async updateCartQty(
+    userId: string,
+    productId: string,
+    quantity: number,
+    configurationId?: string,
+  ): Promise<Cart> {
+    if (quantity < 1) return this.removeFromCart(userId, productId, configurationId);
+    const cart = await this.getCart(userId);
+    const item = cart.items.find(
+      (i) => i.productId === productId && i.configurationId === configurationId,
+    );
+    if (item) item.quantity = quantity;
+    return this.cartRepo.save(cart);
+  }
+
   async removeFromCart(userId: string, productId: string, configurationId?: string): Promise<Cart> {
     const cart = await this.getCart(userId);
     cart.items = cart.items.filter(

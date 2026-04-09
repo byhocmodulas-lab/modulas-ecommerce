@@ -1,7 +1,9 @@
 import {
   Controller, Get, Post, Patch, Delete, Body, Param,
-  Query, UseGuards, HttpCode, HttpStatus, ParseUUIDPipe, Res,
+  Query, UseGuards, HttpCode, HttpStatus, ParseUUIDPipe, Res, IsString,
 } from '@nestjs/common';
+import { IsNumber, Min, Max } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { Response } from 'express';
 import { OrdersService } from './orders.service';
@@ -39,6 +41,17 @@ export class OrdersController {
   @ApiOperation({ summary: 'Add item to cart' })
   addToCart(@CurrentUser() user: User, @Body() dto: AddCartItemDto) {
     return this.ordersService.addToCart(user.id, dto);
+  }
+
+  @Patch('cart/items/:productId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update quantity of a cart item' })
+  updateCartQty(
+    @CurrentUser() user: User,
+    @Param('productId', ParseUUIDPipe) productId: string,
+    @Body() dto: { quantity: number; configurationId?: string },
+  ) {
+    return this.ordersService.updateCartQty(user.id, productId, dto.quantity, dto.configurationId);
   }
 
   @Delete('cart/items/:productId')
@@ -128,6 +141,34 @@ export class OrdersController {
     @CurrentUser() user: User,
   ) {
     return this.paymentsService.createPaymentIntent(id, user.id, user.email);
+  }
+
+  // ── Razorpay: create Razorpay order ───────────────────────────
+
+  @Post(':id/razorpay-order')
+  @ApiOperation({ summary: 'Create Razorpay order for a pending order' })
+  createRazorpayOrder(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.paymentsService.createRazorpayOrder(id, user.id);
+  }
+
+  // ── Razorpay: verify payment signature ────────────────────────
+
+  @Post(':id/razorpay-verify')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify Razorpay payment signature and confirm order' })
+  verifyRazorpayPayment(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: User,
+    @Body() dto: {
+      razorpay_payment_id: string;
+      razorpay_order_id: string;
+      razorpay_signature: string;
+    },
+  ) {
+    return this.paymentsService.verifyRazorpayPayment(id, user.id, dto);
   }
 
   // ── Admin: export orders CSV ──────────────────────────────────

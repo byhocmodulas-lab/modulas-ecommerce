@@ -6,13 +6,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
+import * as crypto from 'crypto';
 import { Payment, PaymentStatus } from './entities/payment.entity';
 import { Order, OrderStatus } from './entities/order.entity';
 import { InvoicesService } from './invoices.service';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const Razorpay = require('razorpay');
+
 @Injectable()
 export class PaymentsService {
   private readonly stripe: Stripe;
+  private readonly razorpay: any;
   private readonly logger = new Logger(PaymentsService.name);
 
   constructor(
@@ -27,13 +32,26 @@ export class PaymentsService {
     if (stripeKey) {
       this.stripe = new Stripe(stripeKey, { apiVersion: '2024-04-10' });
     } else {
-      this.logger.warn('STRIPE_SECRET_KEY not set — payment endpoints are disabled');
+      this.logger.warn('STRIPE_SECRET_KEY not set — Stripe payment endpoints disabled');
+    }
+
+    const rzpKeyId     = this.config.get<string>('RAZORPAY_KEY_ID');
+    const rzpKeySecret = this.config.get<string>('RAZORPAY_KEY_SECRET');
+    if (rzpKeyId && rzpKeySecret) {
+      this.razorpay = new Razorpay({ key_id: rzpKeyId, key_secret: rzpKeySecret });
+    } else {
+      this.logger.warn('RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET not set — Razorpay endpoints disabled');
     }
   }
 
   private get stripeClient(): Stripe {
-    if (!this.stripe) throw new InternalServerErrorException('Payments are not configured');
+    if (!this.stripe) throw new InternalServerErrorException('Stripe payments are not configured');
     return this.stripe;
+  }
+
+  private get razorpayClient() {
+    if (!this.razorpay) throw new InternalServerErrorException('Razorpay payments are not configured');
+    return this.razorpay;
   }
 
   // ── Create PaymentIntent for an order ────────────────────────
@@ -153,6 +171,98 @@ export class PaymentsService {
         }),
       );
     }
+  }
+
+  // ── Razorpay: Create order ────────────────────────────────────
+
+  async createRazorpayOrder(
+    orderId: string,
+    userId: string,
+  ): Promise<{ razorpayOrderId: string; amount: number; currency: string; orderId: string }> {
+    const order = await this.orderRepo.findOne({ where: { id: orderId, userId } });
+    if (!order) throw new NotFoundException(`Order ${orderId} not found`);
+    if (order.status !== OrderStatus.Pending) {
+      throw new BadRequestException('Order is not in pending state');
+    }
+
+    // Razorpay expects amount in smallest currency unit (paise for INR)
+    const amountInPaise = Math.round(Number(order.totalAmount) * 100);
+    const currency = (order.currency ?? 'INR').toUpperCase();
+
+    const rzpOrder = await this.razorpayClient.orders.create({
+      amount: amountInPaise,
+      currency,
+      receipt: `order_${orderId.slice(0, 30)}`,
+      notes: { orderId, userId },
+    });
+
+    // Store the Razorpay order ID on the order record for verification later
+    await this.orderRepo.update(orderId, { razorpayOrderId: rzpOrder.id });
+
+    return {
+      razorpayOrderId: rzpOrder.id,
+      amount: amountInPaise,
+      currency,
+      orderId,
+    };
+  }
+
+  // ── Razorpay: Verify payment signature ───────────────────────
+
+  async verifyRazorpayPayment(
+    orderId: string,
+    userId: string,
+    dto: {
+      razorpay_payment_id: string;
+      razorpay_order_id: string;
+      razorpay_signature: string;
+    },
+  ): Promise<{ success: boolean }> {
+    const order = await this.orderRepo.findOne({ where: { id: orderId, userId } });
+    if (!order) throw new NotFoundException(`Order ${orderId} not found`);
+
+    // Signature verification: HMAC-SHA256 of "razorpay_order_id|razorpay_payment_id"
+    const keySecret = this.config.getOrThrow<string>('RAZORPAY_KEY_SECRET');
+    const body      = `${dto.razorpay_order_id}|${dto.razorpay_payment_id}`;
+    const expected  = crypto
+      .createHmac('sha256', keySecret)
+      .update(body)
+      .digest('hex');
+
+    if (expected !== dto.razorpay_signature) {
+      throw new BadRequestException('Invalid Razorpay payment signature');
+    }
+
+    // Idempotency guard
+    if (order.status !== OrderStatus.Pending) {
+      return { success: true }; // already processed
+    }
+
+    // Confirm order
+    order.status = OrderStatus.Confirmed;
+    await this.orderRepo.save(order);
+
+    // Record payment
+    const payment = this.paymentRepo.create({
+      orderId,
+      userId,
+      razorpayPaymentId: dto.razorpay_payment_id,
+      razorpayOrderId:   dto.razorpay_order_id,
+      amount: Number(order.totalAmount),
+      currency: order.currency ?? 'INR',
+      status: PaymentStatus.Succeeded,
+      metadata: { razorpay_signature: dto.razorpay_signature },
+    });
+    await this.paymentRepo.save(payment);
+
+    // Generate invoice
+    try {
+      await this.invoicesService.generateForOrder(order, userId);
+    } catch (err) {
+      this.logger.error(`Invoice generation failed for Razorpay order ${orderId}`, err);
+    }
+
+    return { success: true };
   }
 
   // ── Queries ───────────────────────────────────────────────────

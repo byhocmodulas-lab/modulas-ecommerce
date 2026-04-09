@@ -20,6 +20,7 @@ import { BEDS_BEDROOM } from './catalog-bedroom.seed';
 import { DINING } from './catalog-dining.seed';
 import { STUDY_OFFICE } from './catalog-study.seed';
 import { LIVING_ROOM } from './catalog-living.seed';
+import { MODULAR_KITCHENS, MODULAR_WARDROBES } from './catalog-modular.seed';
 
 // ─── Load env ──────────────────────────────────────────────────────────────
 config({ path: join(__dirname, '../../../../.env') });
@@ -30,6 +31,8 @@ const ALL_PRODUCTS: SeedProduct[] = [
   ...DINING,
   ...STUDY_OFFICE,
   ...LIVING_ROOM,
+  ...MODULAR_KITCHENS,
+  ...MODULAR_WARDROBES,
 ];
 
 // ─── Category taxonomy ──────────────────────────────────────────────────────
@@ -103,6 +106,31 @@ const CATEGORY_TREE: Array<{
       { slug: 'tv-units', name: 'TV Units', sortOrder: 4 },
       { slug: 'display-shelving', name: 'Display Shelving', sortOrder: 5 },
       { slug: 'floor-lamps', name: 'Floor Lamps', sortOrder: 6 },
+    ],
+  },
+  {
+    slug: 'modular-kitchens',
+    name: 'Modular Kitchens',
+    sortOrder: 6,
+    subcategories: [
+      { slug: 'straight-kitchen',  name: 'Straight Kitchen',  sortOrder: 1 },
+      { slug: 'l-shape-kitchen',   name: 'L-Shape Kitchen',   sortOrder: 2 },
+      { slug: 'parallel-kitchen',  name: 'Parallel Kitchen',  sortOrder: 3 },
+      { slug: 'u-shape-kitchen',   name: 'U-Shape Kitchen',   sortOrder: 4 },
+      { slug: 'island-kitchen',    name: 'Island Kitchen',    sortOrder: 5 },
+      { slug: 'handleless-kitchen',name: 'Handleless Kitchen',sortOrder: 6 },
+    ],
+  },
+  {
+    slug: 'modular-wardrobes',
+    name: 'Modular Wardrobes',
+    sortOrder: 7,
+    subcategories: [
+      { slug: 'sliding-wardrobe',  name: 'Sliding Door Wardrobe', sortOrder: 1 },
+      { slug: 'hinged-wardrobe',   name: 'Hinged Door Wardrobe',  sortOrder: 2 },
+      { slug: 'walk-in-wardrobe',  name: 'Walk-In Wardrobe',      sortOrder: 3 },
+      { slug: 'kids-wardrobe',     name: 'Kids Wardrobe',         sortOrder: 4 },
+      { slug: 'loft-wardrobe',     name: 'Loft Wardrobe',         sortOrder: 5 },
     ],
   },
 ];

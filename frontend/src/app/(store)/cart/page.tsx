@@ -27,19 +27,24 @@ interface CartData {
   updatedAt: string;
 }
 
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
+// Free white-glove delivery threshold in INR
+const FREE_SHIPPING_INR = 50_000;
+// Valid promo codes — in production validate against /orders/promo backend
+const PROMO_CODES: Record<string, number> = { MODULAS10: 10, MODULAS15: 15, WELCOME20: 20 };
+
 export default function CartPage() {
-  const { accessToken, user } = useAuthStore();
+  const { accessToken } = useAuthStore();
   const [cart, setCart] = useState<CartData | null>(null);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
+  const [promoDiscount, setPromoDiscount] = useState(0);
+  const [promoError, setPromoError] = useState("");
 
   useEffect(() => {
-    if (!accessToken) {
-      setLoading(false);
-      return;
-    }
+    if (!accessToken) { setLoading(false); return; }
     ordersApi.getCart(accessToken)
       .then((data) => setCart(data as CartData))
       .catch(() => setCart(null))
@@ -50,22 +55,53 @@ export default function CartPage() {
     if (!accessToken) return;
     setUpdatingId(productId);
     try {
-      const updated = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1"}/orders/cart/items/${productId}`,
-        { method: "DELETE", headers: { Authorization: `Bearer ${accessToken}` }, credentials: "include" },
-      );
-      if (updated.ok) {
-        const data = await updated.json();
-        setCart(data as CartData);
-      }
+      const res = await fetch(`${API}/orders/cart/items/${productId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${accessToken}` },
+        credentials: "include",
+      });
+      if (res.ok) setCart(await res.json() as CartData);
     } finally {
       setUpdatingId(null);
     }
   }
 
+  async function handleQtyChange(productId: string, newQty: number, configurationId?: string) {
+    if (!accessToken) return;
+    if (newQty < 1) return handleRemove(productId);
+    setUpdatingId(productId);
+    try {
+      const res = await fetch(`${API}/orders/cart/items/${productId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({ quantity: newQty, configurationId }),
+      });
+      if (res.ok) setCart(await res.json() as CartData);
+    } finally {
+      setUpdatingId(null);
+    }
+  }
+
+  function applyPromo() {
+    setPromoError("");
+    const pct = PROMO_CODES[promoCode.trim().toUpperCase()];
+    if (pct) {
+      setPromoDiscount(pct);
+      setPromoApplied(true);
+    } else {
+      setPromoError("Invalid promo code");
+      setPromoApplied(false);
+      setPromoDiscount(0);
+    }
+  }
+
   const subtotal = cart?.items.reduce((s, i) => s + i.unitPrice * i.quantity, 0) ?? 0;
-  const shippingFree = subtotal >= 500;
-  const discount = promoApplied ? Math.round(subtotal * 0.1) : 0;
+  const shippingFree = subtotal >= FREE_SHIPPING_INR;
+  const discount = promoApplied ? Math.round(subtotal * promoDiscount / 100) : 0;
   const total = subtotal - discount;
 
   // ── Empty / loading states ──────────────────────────────────────
@@ -198,10 +234,12 @@ export default function CartPage() {
 
                 {/* Qty + price row */}
                 <div className="mt-auto flex items-center justify-between">
-                  {/* Quantity stepper (display only — add mutation here if needed) */}
+                  {/* Quantity stepper */}
                   <div className="flex items-center gap-2 rounded-full border border-black/10 dark:border-white/10 px-3 py-1.5">
                     <button
                       type="button"
+                      onClick={() => handleQtyChange(item.productId, item.quantity - 1, item.configurationId)}
+                      disabled={updatingId === item.productId}
                       className="text-charcoal/40 dark:text-cream/40 hover:text-charcoal dark:hover:text-cream transition-colors disabled:opacity-30"
                       aria-label="Decrease quantity"
                     >
@@ -212,7 +250,9 @@ export default function CartPage() {
                     </span>
                     <button
                       type="button"
-                      className="text-charcoal/40 dark:text-cream/40 hover:text-charcoal dark:hover:text-cream transition-colors"
+                      onClick={() => handleQtyChange(item.productId, item.quantity + 1, item.configurationId)}
+                      disabled={updatingId === item.productId}
+                      className="text-charcoal/40 dark:text-cream/40 hover:text-charcoal dark:hover:text-cream transition-colors disabled:opacity-30"
                       aria-label="Increase quantity"
                     >
                       <Plus className="h-3.5 w-3.5" />
@@ -263,7 +303,7 @@ export default function CartPage() {
             {!shippingFree && (
               <div>
                 <dd className="text-xs text-charcoal/40 dark:text-cream/40">
-                  Free white-glove delivery on orders over £500
+                  Free white-glove delivery on orders over ₹50,000
                 </dd>
               </div>
             )}
@@ -294,18 +334,20 @@ export default function CartPage() {
               </div>
               <button
                 type="button"
-                onClick={() => {
-                  if (promoCode === "MODULAS10") setPromoApplied(true);
-                }}
-                className="rounded-lg border border-black/10 dark:border-white/10 px-3 font-sans text-sm text-charcoal/60 dark:text-cream/60 hover:border-gold hover:text-gold transition-colors"
+                onClick={applyPromo}
+                disabled={promoApplied}
+                className="rounded-lg border border-black/10 dark:border-white/10 px-3 font-sans text-sm text-charcoal/60 dark:text-cream/60 hover:border-gold hover:text-gold transition-colors disabled:opacity-40"
               >
                 Apply
               </button>
             </div>
             {promoApplied && (
               <p className="mt-1.5 font-sans text-xs text-emerald-600">
-                Code applied — 10% off your order
+                Code applied — {promoDiscount}% off your order
               </p>
+            )}
+            {promoError && (
+              <p className="mt-1.5 font-sans text-xs text-red-500">{promoError}</p>
             )}
           </div>
 
@@ -328,7 +370,7 @@ export default function CartPage() {
           {/* Trust signals */}
           <ul className="mt-5 space-y-2 border-t border-black/6 dark:border-white/6 pt-5 font-sans text-xs text-charcoal/40 dark:text-cream/40">
             <li className="flex items-center gap-2">
-              <span className="text-gold">✓</span> Free white-glove delivery over £500
+              <span className="text-gold">✓</span> Free white-glove delivery on orders over ₹50,000
             </li>
             <li className="flex items-center gap-2">
               <span className="text-gold">✓</span> 30-day returns on undamaged items
