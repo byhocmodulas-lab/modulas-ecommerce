@@ -127,9 +127,9 @@ const FEATURED_SPACES: FeaturedSpace[] = [
     image:    "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1400&q=85",
     href:     "/products?category=sofas",
     hotspots: [
-      { top: "52%", left: "30%", product: "Avec Modular Sofa",  price: "₹3,85,000", href: "/products/avec-modular-sofa" },
-      { top: "74%", left: "52%", product: "Arc Side Table",      price: "₹79,000",   href: "/products/arc-side-table" },
-      { top: "28%", left: "74%", product: "Noir Arc Lamp",       price: "₹52,000",   href: "/products/noir-arc-lamp" },
+      { top: "52%", left: "30%", product: "Avec Modular Sofa",  price: "₹3,85,000", href: "/products/luxe-verona-3-seater-sofa" },
+      { top: "74%", left: "52%", product: "Arc Side Table",      price: "₹79,000",   href: "/products/travertine-oval-coffee-table" },
+      { top: "28%", left: "74%", product: "Noir Arc Lamp",       price: "₹52,000",   href: "/products/cascade-walnut-coffee-table" },
     ],
   },
   {
@@ -138,9 +138,9 @@ const FEATURED_SPACES: FeaturedSpace[] = [
     image:    "https://images.unsplash.com/photo-1549187774-b4e9b0445b41?w=1400&q=85",
     href:     "/products?category=tables",
     hotspots: [
-      { top: "42%", left: "45%", product: "Span Dining Table",    price: "₹4,20,000", href: "/products/span-dining-table" },
-      { top: "60%", left: "20%", product: "Cate Swivel Chair",    price: "₹1,28,000", href: "/products/cate-swivel-chair" },
-      { top: "18%", left: "62%", product: "Ribbon Pendant",       price: "₹38,000",   href: "/products/ribbon-pendant" },
+      { top: "42%", left: "45%", product: "Span Dining Table",    price: "₹4,20,000", href: "/products/orion-solid-oak-dining-table" },
+      { top: "60%", left: "20%", product: "Cate Swivel Chair",    price: "₹1,28,000", href: "/products/ravenna-slim-arm-sofa" },
+      { top: "18%", left: "62%", product: "Ribbon Pendant",       price: "₹38,000",   href: "/products/noir-marble-coffee-table" },
     ],
   },
 ];

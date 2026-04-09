@@ -121,8 +121,8 @@ export async function ProductGrid({ searchParams }: ProductGridProps) {
 /* ── Placeholder catalog (CB2-inspired luxury furniture) ──────────── */
 const PLACEHOLDER_PRODUCTS: Product[] = [
   {
-    id: "fp-1", sku: "MOD-AVC-001", slug: "avec-modular-sofa",
-    name: "Avec Modular Sofa",
+    id: "fp-1", sku: "MOD-SOF-001", slug: "luxe-verona-3-seater-sofa",
+    name: "Luxe Verona 3-Seater Sofa",
     description: "A cloud-soft modular sofa upholstered in performance boucle over a kiln-dried hardwood frame with hand-tied springs.",
     category: { id: "cat-sofas", name: "Sofas & Seating", slug: "sofas" },
     price: 385000, compare_at_price: 480000, currency: "INR",

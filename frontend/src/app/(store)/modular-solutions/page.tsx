@@ -167,7 +167,7 @@ const FEATURED_PRODUCTS: Product[] = [
     ],
   },
   {
-    id: "ms-2", sku: "MOD-AVC-002", slug: "avec-modular-sofa",
+    id: "ms-2", sku: "MOD-SOF-001", slug: "luxe-verona-3-seater-sofa",
     name: "Avec Modular Sofa",
     description: "A cloud-soft modular sofa in performance boucle over kiln-dried hardwood. Fully reconfigurable — add or remove modules as your space evolves.",
     category: { id: "cat-sofas", name: "Sofas", slug: "sofas" },

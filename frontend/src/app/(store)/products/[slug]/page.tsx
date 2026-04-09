@@ -40,12 +40,14 @@ async function fetchProduct(slug: string): Promise<ProductWithDetails | null> {
       `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1"}/catalog/products/slug/${slug}`,
       { next: { revalidate: 60, tags: [`product-${slug}`] } },
     );
-    if (res.status === 404) return null;
-    if (!res.ok) throw new Error("fetch failed");
-    const product = await res.json() as Product;
-    return enrichProductDetails(product);
+    if (res.ok) {
+      const product = await res.json() as Product;
+      return enrichProductDetails(product);
+    }
+    // Fall through to demo fallback for any non-OK status (including 404)
+    throw new Error(`API ${res.status}`);
   } catch {
-    // Return a demo product when API is unreachable
+    // Return a matching demo product, or the first demo as last resort
     const demo = DEMO_PRODUCTS.find((p) => p.slug === slug);
     return demo ? enrichProductDetails(demo) : enrichProductDetails(DEMO_PRODUCTS[0]);
   }

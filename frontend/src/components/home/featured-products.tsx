@@ -50,8 +50,8 @@ export async function FeaturedProducts() {
 /* ── Featured catalog (CB2-inspired luxury furniture) ───────────── */
 const FEATURED_PRODUCTS: Product[] = [
   {
-    id: "fp-1", sku: "MOD-AVC-001", slug: "avec-modular-sofa",
-    name: "Avec Modular Sofa",
+    id: "fp-1", sku: "MOD-SOF-001", slug: "luxe-verona-3-seater-sofa",
+    name: "Luxe Verona 3-Seater Sofa",
     description: "A cloud-soft modular sofa upholstered in performance boucle over a kiln-dried hardwood frame with hand-tied springs. Fully reconfigurable.",
     category: { id: "cat-sofas", name: "Sofas", slug: "sofas" },
     price: 385000, compare_at_price: 480000, currency: "INR",
@@ -65,8 +65,8 @@ const FEATURED_PRODUCTS: Product[] = [
     ],
   },
   {
-    id: "fp-2", sku: "MOD-SPD-002", slug: "span-dining-table",
-    name: "Span Dining Table",
+    id: "fp-2", sku: "MOD-SPD-002", slug: "orion-solid-oak-dining-table",
+    name: "Orion Solid Oak Dining Table",
     description: "Honed Italian marble top on a precision-welded brushed brass base. Seats eight generously. A centrepiece that lasts generations.",
     category: { id: "cat-tables", name: "Tables", slug: "tables" },
     price: 420000, currency: "INR",

@@ -36,7 +36,7 @@ const COLLECTIONS: Collection[] = [
     materials:   ["Sheesham", "Linen", "Marble", "Natural Oak"],
     pieces:      24,
     featuredProducts: [
-      { name: "Avec Modular Sofa",  price: "₹3,85,000", imageUrl: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80",                                        href: "/products/avec-modular-sofa" },
+      { name: "Avec Modular Sofa",  price: "₹3,85,000", imageUrl: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80",                                        href: "/products/luxe-verona-3-seater-sofa" },
       { name: "Arc Coffee Table",   price: "₹1,24,000", imageUrl: "https://images.pexels.com/photos/1866149/pexels-photo-1866149.jpeg?auto=compress&cs=tinysrgb&w=600",            href: "/products/arc-coffee-table" },
       { name: "Span Bookshelf",     price: "₹98,000",   imageUrl: "https://images.pexels.com/photos/667838/pexels-photo-667838.jpeg?auto=compress&cs=tinysrgb&w=600",             href: "/products/span-bookshelf" },
       { name: "Noir Floor Lamp",    price: "₹52,000",   imageUrl: "https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=600",             href: "/products/noir-floor-lamp" },
