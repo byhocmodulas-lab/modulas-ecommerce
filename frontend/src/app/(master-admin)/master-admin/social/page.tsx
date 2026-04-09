@@ -2138,16 +2138,117 @@ function SchedulerTab() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Account Connections tab
+// ─────────────────────────────────────────────────────────────────────────────
+const CONNECT_PLATFORMS: {
+  id: Platform; label: string; color: string; bg: string; border: string;
+  connected: boolean; handle?: string; instructions: string[];
+}[] = [
+  { id:"instagram", label:"Instagram",   color:"text-pink-600",  bg:"bg-pink-50",  border:"border-pink-200",  connected:false,
+    instructions:["Go to Instagram → Settings → Business → Connect to Facebook","Then link your Facebook Page to Meta Business Suite","Add Modulas Instagram account in Meta Business Suite → Accounts"] },
+  { id:"facebook",  label:"Facebook",    color:"text-blue-600",  bg:"bg-blue-50",  border:"border-blue-200",  connected:false,
+    instructions:["Open Meta Business Suite (business.facebook.com)","Go to Settings → Business Assets → Pages","Add the Modulas Facebook Page to your Business Account"] },
+  { id:"linkedin",  label:"LinkedIn",    color:"text-sky-700",   bg:"bg-sky-50",   border:"border-sky-200",   connected:false,
+    instructions:["Go to LinkedIn Campaign Manager (linkedin.com/campaignmanager)","Create an Ad Account linked to the Modulas Company Page","Request Page Admin access from the current Page owner"] },
+  { id:"twitter",   label:"X / Twitter", color:"text-charcoal",  bg:"bg-stone-50", border:"border-stone-200", connected:false,
+    instructions:["Log into X (twitter.com) with the @modulas account","Go to Settings → Security → Connected Apps","Use the Twitter Developer Portal to issue API keys if needed for automation"] },
+  { id:"google",    label:"Google Business",color:"text-red-600",bg:"bg-red-50",   border:"border-red-200",   connected:false,
+    instructions:["Visit business.google.com and sign in with the Modulas Google account","Claim or create the Modulas Business Profile","Add yourself as a manager under Business Profile → Users"] },
+  { id:"houzz",     label:"Houzz",        color:"text-green-700",bg:"bg-green-50", border:"border-green-200", connected:false,
+    instructions:["Go to houzz.com/pro and sign in to the Modulas Pro account","Navigate to Profile Settings → Team Members","Invite team members using their email address"] },
+  { id:"homify",    label:"Homify",       color:"text-amber-700",bg:"bg-amber-50", border:"border-amber-200", connected:false,
+    instructions:["Log into homify.in with the Modulas professional account","Go to Profile → Settings → Account Management","Contact Homify support at support@homify.in to link multiple managers"] },
+];
+
+function AccountsTab() {
+  const [expanded, setExpanded] = React.useState<Platform | null>(null);
+  const [copied,   setCopied]   = React.useState<string | null>(null);
+
+  function copyEmail(email: string) {
+    navigator.clipboard.writeText(email).catch(() => {});
+    setCopied(email);
+    setTimeout(() => setCopied(null), 2000);
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 flex items-start gap-3">
+        <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+        <div>
+          <p className="font-sans text-sm font-medium text-amber-800">Manual OAuth connection required</p>
+          <p className="font-sans text-xs text-amber-700 mt-0.5">
+            Real-time social media APIs require OAuth app approval from each platform. Until then, use the step-by-step guides below to manually connect each account through the platform&apos;s native business tools.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-3">
+        {CONNECT_PLATFORMS.map((p) => {
+          const isOpen = expanded === p.id;
+          return (
+            <div key={p.id} className={`rounded-xl border ${p.border} ${p.bg} overflow-hidden`}>
+              <div className="flex items-center justify-between px-4 py-3.5">
+                <div className="flex items-center gap-3">
+                  <div className={`${p.color} font-semibold flex items-center gap-2 text-sm`}>
+                    <PlatformIcon id={p.id} size="h-4 w-4" />
+                    {p.label}
+                  </div>
+                  {p.handle && <span className="font-sans text-xs text-charcoal/40">{p.handle}</span>}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`rounded-full border px-2.5 py-0.5 font-sans text-[10px] uppercase tracking-[0.08em] ${
+                    p.connected ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-white/60 border-black/10 text-charcoal/40"
+                  }`}>
+                    {p.connected ? "Connected" : "Not connected"}
+                  </span>
+                  <button type="button" onClick={() => setExpanded(isOpen ? null : p.id)}
+                    className="font-sans text-[11px] text-charcoal/50 hover:text-charcoal border border-black/10 bg-white/70 rounded-full px-3 py-1 transition-colors">
+                    {isOpen ? "Close" : "How to connect"}
+                  </button>
+                </div>
+              </div>
+              {isOpen && (
+                <div className="border-t border-black/8 bg-white/60 px-4 py-4">
+                  <p className="font-sans text-xs font-medium text-charcoal/60 uppercase tracking-[0.1em] mb-3">Setup steps</p>
+                  <ol className="space-y-2">
+                    {p.instructions.map((step, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white border border-black/10 font-sans text-[10px] text-charcoal/50 font-medium mt-0.5">{i + 1}</span>
+                        <p className="font-sans text-xs text-charcoal/70 leading-relaxed">{step}</p>
+                      </li>
+                    ))}
+                  </ol>
+                  <div className="mt-4 flex items-center gap-2">
+                    <p className="font-sans text-[11px] text-charcoal/40">Need help? Contact</p>
+                    <button type="button" onClick={() => copyEmail("tech@modulas.in")}
+                      className="font-sans text-[11px] text-charcoal/60 hover:text-charcoal underline transition-colors">
+                      tech@modulas.in
+                    </button>
+                    {copied === "tech@modulas.in" && <span className="font-sans text-[10px] text-emerald-600">Copied!</span>}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Page shell
 // ─────────────────────────────────────────────────────────────────────────────
 export default function SocialMediaPage() {
-  const [tab, setTab] = useState<Tab>("overview");
+  type ExtTab = Tab | "accounts";
+  const [activeTab, setActiveTab] = useState<ExtTab>("overview");
   const TABS = [
-    { id:"overview"    as Tab, label:"Overview",          icon:<BarChart2 className="h-3.5 w-3.5" />  },
-    { id:"trends"      as Tab, label:"Trends & Keywords",  icon:<TrendingUp className="h-3.5 w-3.5" /> },
-    { id:"competitors" as Tab, label:"Competitors",        icon:<Target className="h-3.5 w-3.5" />     },
-    { id:"studio"      as Tab, label:"Content Studio",     icon:<Sparkles className="h-3.5 w-3.5" />   },
-    { id:"scheduler"   as Tab, label:"Scheduler",          icon:<Calendar className="h-3.5 w-3.5" />   },
+    { id:"overview"    as ExtTab, label:"Overview",           icon:<BarChart2 className="h-3.5 w-3.5" />  },
+    { id:"trends"      as ExtTab, label:"Trends & Keywords",  icon:<TrendingUp className="h-3.5 w-3.5" /> },
+    { id:"competitors" as ExtTab, label:"Competitors",        icon:<Target className="h-3.5 w-3.5" />     },
+    { id:"studio"      as ExtTab, label:"Content Studio",     icon:<Sparkles className="h-3.5 w-3.5" />   },
+    { id:"scheduler"   as ExtTab, label:"Scheduler",          icon:<Calendar className="h-3.5 w-3.5" />   },
+    { id:"accounts"    as ExtTab, label:"Account Connections",icon:<Share2 className="h-3.5 w-3.5" />     },
   ];
   return (
     <div>
@@ -2157,17 +2258,18 @@ export default function SocialMediaPage() {
       </div>
       <div className="flex gap-1 border-b border-black/8 mb-6 overflow-x-auto">
         {TABS.map((t) => (
-          <button type="button" key={t.id} onClick={() => setTab(t.id)}
-            className={`flex items-center gap-1.5 px-4 py-2.5 font-sans text-sm whitespace-nowrap border-b-2 transition-colors -mb-px ${tab===t.id ? "border-red-500 text-red-600 font-medium" : "border-transparent text-charcoal/50 hover:text-charcoal"}`}>
+          <button type="button" key={t.id} onClick={() => setActiveTab(t.id)}
+            className={`flex items-center gap-1.5 px-4 py-2.5 font-sans text-sm whitespace-nowrap border-b-2 transition-colors -mb-px ${activeTab===t.id ? "border-red-500 text-red-600 font-medium" : "border-transparent text-charcoal/50 hover:text-charcoal"}`}>
             {t.icon}{t.label}
           </button>
         ))}
       </div>
-      {tab==="overview"    && <OverviewTab />}
-      {tab==="trends"      && <TrendsTab />}
-      {tab==="competitors" && <CompetitorsTab />}
-      {tab==="studio"      && <StudioTab />}
-      {tab==="scheduler"   && <SchedulerTab />}
+      {activeTab==="overview"    && <OverviewTab />}
+      {activeTab==="trends"      && <TrendsTab />}
+      {activeTab==="competitors" && <CompetitorsTab />}
+      {activeTab==="studio"      && <StudioTab />}
+      {activeTab==="scheduler"   && <SchedulerTab />}
+      {activeTab==="accounts"    && <AccountsTab />}
     </div>
   );
 }

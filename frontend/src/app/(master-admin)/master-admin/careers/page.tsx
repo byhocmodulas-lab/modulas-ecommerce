@@ -65,11 +65,28 @@ const APP_NEXT: Partial<Record<AppStatus, AppStatus>> = {
   interviewing: "offered",
 };
 
+const DEPARTMENTS = ["Design", "Sales", "Marketing", "Operations", "Technology", "Finance"];
+
+interface NewPostingForm {
+  title: string;
+  department: string;
+  type: JobType;
+  location: string;
+  openings: number;
+}
+
+const BLANK_FORM: NewPostingForm = { title: "", department: "Design", type: "full_time", location: "Mumbai", openings: 1 };
+
+const inputCls = "w-full rounded-lg border border-black/10 bg-white px-3 py-2 font-sans text-sm text-charcoal placeholder:text-charcoal/25 focus:border-black/30 focus:outline-none transition-colors";
+const selectCls = `${inputCls} cursor-pointer`;
+
 export default function CareersPage() {
   const { accessToken } = useAuthStore();
   const [tab, setTab]                   = useState<"postings" | "applicants">("postings");
   const [applicants, setApplicants]     = useState(APPLICANTS);
   const [postings, setPostings]         = useState(JOB_POSTINGS);
+  const [showNewForm, setShowNewForm]   = useState(false);
+  const [newForm, setNewForm]           = useState<NewPostingForm>(BLANK_FORM);
 
   useEffect(() => {
     if (!accessToken) return;
@@ -109,6 +126,25 @@ export default function CareersPage() {
     setApplicants((p) => p.map((a) => a.id === id ? { ...a, status } : a));
   };
 
+  function submitNewPosting() {
+    if (!newForm.title.trim() || !newForm.location.trim()) return;
+    const posting: JobPosting = {
+      id: `j${Date.now()}`,
+      title: newForm.title.trim(),
+      department: newForm.department,
+      type: newForm.type,
+      location: newForm.location.trim(),
+      openings: newForm.openings,
+      applicants: 0,
+      posted: new Date().toISOString().slice(0, 10),
+      active: true,
+    };
+    setPostings((p) => [posting, ...p]);
+    setNewForm(BLANK_FORM);
+    setShowNewForm(false);
+    setTab("postings");
+  }
+
   const totalApplicants = postings.reduce((s, j) => s + j.applicants, 0);
   const activePostings  = postings.filter((j) => j.active).length;
   const offeredCount    = applicants.filter((a) => a.status === "offered").length;
@@ -120,10 +156,64 @@ export default function CareersPage() {
           <h1 className="font-serif text-3xl text-charcoal">Careers & Interns</h1>
           <p className="font-sans text-sm text-charcoal/35 mt-0.5">{activePostings} active postings · {totalApplicants} total applicants</p>
         </div>
-        <button type="button" className="flex items-center gap-2 rounded-full border border-black/10 px-4 py-2 font-sans text-[12px] text-charcoal/60 hover:text-charcoal hover:border-black/20 transition-colors">
+        <button type="button" onClick={() => setShowNewForm((v) => !v)}
+          className="flex items-center gap-2 rounded-full border border-black/10 px-4 py-2 font-sans text-[12px] text-charcoal/60 hover:text-charcoal hover:border-black/20 transition-colors">
           <Plus className="h-3.5 w-3.5" /> New Posting
         </button>
       </div>
+
+      {/* New Posting inline form */}
+      {showNewForm && (
+        <div className="rounded-2xl border border-black/10 bg-amber-50/50 p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-sans text-sm font-medium text-charcoal">New Job Posting</h3>
+            <button type="button" onClick={() => setShowNewForm(false)} className="text-charcoal/30 hover:text-charcoal/60 transition-colors">✕</button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="sm:col-span-2">
+              <label htmlFor="np-title" className="block font-sans text-[10px] uppercase tracking-[0.1em] text-charcoal/40 mb-1">Job Title *</label>
+              <input id="np-title" type="text" className={inputCls} placeholder="e.g. Senior Interior Designer"
+                value={newForm.title} onChange={(e) => setNewForm((f) => ({ ...f, title: e.target.value }))} />
+            </div>
+            <div>
+              <label htmlFor="np-dept" className="block font-sans text-[10px] uppercase tracking-[0.1em] text-charcoal/40 mb-1">Department</label>
+              <select id="np-dept" title="Department" className={selectCls} value={newForm.department}
+                onChange={(e) => setNewForm((f) => ({ ...f, department: e.target.value }))}>
+                {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="np-type" className="block font-sans text-[10px] uppercase tracking-[0.1em] text-charcoal/40 mb-1">Type</label>
+              <select id="np-type" title="Job type" className={selectCls} value={newForm.type}
+                onChange={(e) => setNewForm((f) => ({ ...f, type: e.target.value as JobType }))}>
+                <option value="full_time">Full-time</option>
+                <option value="internship">Internship</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="np-location" className="block font-sans text-[10px] uppercase tracking-[0.1em] text-charcoal/40 mb-1">Location *</label>
+              <input id="np-location" type="text" className={inputCls} placeholder="e.g. Mumbai / Remote"
+                value={newForm.location} onChange={(e) => setNewForm((f) => ({ ...f, location: e.target.value }))} />
+            </div>
+            <div>
+              <label htmlFor="np-openings" className="block font-sans text-[10px] uppercase tracking-[0.1em] text-charcoal/40 mb-1">Openings</label>
+              <input id="np-openings" type="number" min={1} max={50} title="Number of openings" className={inputCls}
+                value={newForm.openings} onChange={(e) => setNewForm((f) => ({ ...f, openings: Math.max(1, Number(e.target.value)) }))} />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button type="button" onClick={submitNewPosting} disabled={!newForm.title.trim() || !newForm.location.trim()}
+              className="h-9 px-6 rounded-full bg-charcoal text-cream font-sans text-[11px] uppercase tracking-[0.1em] hover:bg-charcoal/90 transition-colors disabled:opacity-40">
+              Create Posting
+            </button>
+            <button type="button" onClick={() => setShowNewForm(false)}
+              className="h-9 px-4 rounded-full border border-black/10 text-charcoal/50 font-sans text-[11px] uppercase tracking-[0.1em] hover:border-black/20 transition-colors">
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
 
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-4">

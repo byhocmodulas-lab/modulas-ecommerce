@@ -2,16 +2,56 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   LayoutDashboard, Users, FileText, Briefcase, BarChart3,
   Megaphone, ShoppingBag, ChevronRight, ArrowLeft, Shield,
   PhoneCall, Share2, FileBarChart2, TrendingUp, Target,
-  DollarSign, BookOpen, Receipt, PackageCheck,
+  DollarSign, Receipt, PackageCheck,
   Zap, Globe, Search, Sparkles, Palette, Eye,
 } from "lucide-react";
-import { useAccessToken } from "@/lib/stores/auth-store";
+import { useAccessToken, useAuthStore } from "@/lib/stores/auth-store";
 import { authApi } from "@/lib/api/client";
+import { refresh } from "@/lib/api/auth";
+
+/** Silently refreshes the access token every 14 minutes so the session never expires */
+function TokenRefresher() {
+  const setAuth   = useAuthStore((s) => s.setAuth);
+  const tokenRef  = useRef<string | null>(null);
+  tokenRef.current = useAccessToken();
+
+  useEffect(() => {
+    async function doRefresh() {
+      try {
+        const result = await refresh();
+        if (!result?.accessToken) return;
+        setAuth(
+          {
+            id: result.user.id,
+            email: result.user.email,
+            fullName: result.user.fullName,
+            avatarUrl: result.user.avatarUrl,
+            role: result.user.role as Parameters<typeof setAuth>[0]["role"],
+            isVerified: result.user.isVerified,
+          },
+          result.accessToken,
+          result.expiresIn,
+        );
+        // Re-set the cookie so the middleware doesn't redirect
+        document.cookie = `modulas_token=${result.accessToken}; path=/; max-age=${result.expiresIn}; SameSite=Lax`;
+      } catch {
+        // Refresh failed (e.g. refresh token also expired) — let middleware handle it
+      }
+    }
+
+    // Refresh immediately on mount, then every 14 minutes
+    doRefresh();
+    const id = setInterval(doRefresh, 14 * 60 * 1000);
+    return () => clearInterval(id);
+  }, [setAuth]);
+
+  return null;
+}
 
 const NAV_SECTIONS = [
   {
@@ -124,6 +164,7 @@ export default function MasterAdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="min-h-screen bg-[#f8f7f5]">
+      <TokenRefresher />
       {/* Top bar */}
       <div className="border-b border-black/6 bg-white">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-6 py-3">
